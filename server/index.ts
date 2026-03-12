@@ -32,8 +32,12 @@ const distPath = path.resolve(__dirname, "../dist");
 app.use(express.static(distPath));
 
 // Catch-all route to serve index.html for React Router
-app.get("*", (_req, res) => {
-  res.sendFile(path.resolve(distPath, "index.html"));
+app.use((req, res, next) => {
+  if (req.method === "GET") {
+    res.sendFile(path.resolve(distPath, "index.html"));
+  } else {
+    next();
+  }
 });
 
 app.listen(PORT, () => {
