@@ -4,7 +4,7 @@ import cors from "cors";
 import registrationRouter from "./routes/registration.js";
 import verificationRouter from "./routes/verification.js";
 
-const PORT = Number(process.env.API_PORT ?? 3001);
+const PORT = Number(process.env.API_PORT ?? 8081);
 
 const app = express();
 
