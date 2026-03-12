@@ -25,13 +25,6 @@ const timelineItems = timelineData.map(item => ({
 const About = () => {
   return (
     <main>
-      {/* Hero Section */}
-      <HeroSection 
-        title="About SPIC"
-        subtitle="Building Tomorrow's Innovators Today"
-        imageUrl="/about/about-hero.jpg"
-      />
-
       {/* Who We Are Section */}
       <WhoWeAreSection
         title="Who We Are"

@@ -47,7 +47,6 @@ export function BeamsBackground({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const beamsRef = useRef<Beam[]>([]);
   const animationFrameRef = useRef<number>(0);
-  const MINIMUM_BEAMS = 20;
 
   const opacityMap = {
     subtle: 0.7,
@@ -70,7 +69,10 @@ export function BeamsBackground({
       canvas.style.height = `${window.innerHeight}px`;
       ctx.scale(dpr, dpr);
 
-      const totalBeams = MINIMUM_BEAMS * 1.5;
+      // Reduce beams on mobile for performance
+      const isMobile = window.innerWidth < 768;
+      const totalBeams = isMobile ? 12 : 30; // 30 is 20 * 1.5 from previous
+
       beamsRef.current = Array.from({ length: totalBeams }, () =>
         createBeam(canvas.width, canvas.height)
       );
@@ -139,7 +141,8 @@ export function BeamsBackground({
       if (!canvas || !ctx) return;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = "blur(35px)";
+      // Remove expensive context blur that hurts mobile GPU
+      // ctx.filter = "blur(35px)"; 
 
       const totalBeams = beamsRef.current.length;
       beamsRef.current.forEach((beam, index) => {
@@ -176,22 +179,19 @@ export function BeamsBackground({
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0"
-        style={{ filter: "blur(15px)" }}
+        className="absolute inset-0 opacity-40 blur-2xl" 
+        // We use a CSS blur and lower opacity instead of an expensive canvas filter + backdrop filter
       />
 
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 bg-background/5" // Use a semi-transparent background instead of heavy backdrop blur
         animate={{
-          opacity: [0.05, 0.15, 0.05],
+          opacity: [0.3, 0.5, 0.3],
         }}
         transition={{
           duration: 10,
           ease: "easeInOut",
           repeat: Number.POSITIVE_INFINITY,
-        }}
-        style={{
-          backdropFilter: "blur(50px)",
         }}
       />
 

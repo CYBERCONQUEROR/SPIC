@@ -1,13 +1,13 @@
 import { google } from "googleapis";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const KEY_PATH = path.join(__dirname, "..", "firebase-service-account.json");
+import { getServiceAccount } from "../db.js";
 
 // Re-use the same Firebase service account for Google Sheets access
+const serviceAccount = getServiceAccount() as any;
 const auth = new google.auth.GoogleAuth({
-  keyFile: KEY_PATH,
+  credentials: {
+    client_email: serviceAccount.client_email,
+    private_key: serviceAccount.private_key,
+  },
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 

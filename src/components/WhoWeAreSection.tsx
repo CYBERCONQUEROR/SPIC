@@ -19,7 +19,7 @@ export default function WhoWeAreSection({
   imageUrl = "/about/spic-community.jpg",
 }: WhoWeAreSectionProps) {
   return (
-    <section className="section-padding-sm border-t border-border/40">
+    <section className="pt-24 sm:pt-32 pb-16">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           {/* Image Side */}
