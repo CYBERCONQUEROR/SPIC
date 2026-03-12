@@ -11,6 +11,7 @@ const navLinks = [
   { label: "About", path: "/about" },
   { label: "Events", path: "/events" },
   { label: "Team", path: "/team" },
+  { label: "Gallery", path: "/gallery" },
 ];
 
 const Header = () => {
@@ -18,30 +19,30 @@ const Header = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/90 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2.5 group">
           <img
-            src="/393231854_702667585072023_7865280417640025906_n.jpg"
+            src="Gemini_Generated_Image_c51bomc51bomc51b-removebg-preview.png"
             alt="SPIC Logo"
-            className="h-10 w-10 object-cover rounded-md transition-transform duration-200 group-hover:scale-105"
+            className="h-8 w-8 rounded-full object-cover border border-border/70 shadow-sm transition-transform duration-200 group-hover:scale-105"
           />
-          <span className="font-display text-lg font-bold tracking-tight text-foreground">
+          <span className="font-display text-base font-semibold tracking-tight text-foreground">
             SPIC
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-0.5" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center justify-center gap-1" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
               className={cn(
-                "relative px-3.5 py-2 rounded-md text-sm font-medium transition-colors duration-200",
+                "relative px-3.5 py-2 rounded-full text-sm font-medium transition-colors duration-200",
                 location.pathname === link.path
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
               )}
             >
               {link.label}
@@ -54,12 +55,6 @@ const Header = () => {
 
         <div className="hidden md:flex items-center gap-2.5">
           <ThemeToggle />
-          <Button asChild size="sm" variant="ghost">
-            <Link to="/join">Join Us</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link to="/events">Register Now</Link>
-          </Button>
         </div>
 
         {/* Mobile hamburger */}
@@ -92,12 +87,6 @@ const Header = () => {
                   <span className="text-sm text-muted-foreground">Theme</span>
                   <ThemeToggle />
                 </div>
-                <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                  <Link to="/join">Join Us</Link>
-                </Button>
-                <Button asChild onClick={() => setOpen(false)}>
-                  <Link to="/events">Register Now</Link>
-                </Button>
               </div>
             </nav>
           </SheetContent>

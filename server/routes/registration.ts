@@ -84,6 +84,8 @@ router.post("/", async (req: Request, res: Response) => {
     eventDate: registration.eventDate,
     eventVenue: registration.eventVenue,
     createdAt: registration.createdAt,
+  }).catch((err) => {
+    console.error(`[register] Failed to append registration to sheets for ${id}:`, err);
   });
 
   // Send email (non-blocking)

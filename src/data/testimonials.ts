@@ -9,7 +9,7 @@ export interface Testimonial {
 export const testimonials: Testimonial[] = [
   {
     id: "t1",
-    quote: "SPIC gave me the platform to pitch my startup idea at the national level. The mentorship and feedback were invaluable.",
+    quote: "SPIC helped me transform my idea into a working startup.",
     name: "Rahul Sharma",
     batch: "Final Year",
     role: "Core Team Member 2024",

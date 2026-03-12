@@ -11,6 +11,7 @@ export interface Event {
   highlightsUrl?: string;
   registrationUrl?: string;
   image?: string;
+  imageList?: string[]; // List of image filenames in the event folder
 }
 
 export const upcomingEvents: Event[] = [
@@ -58,6 +59,22 @@ export const pastEvents: Event[] = [
     attendees: 200,
     speakers: 5,
     highlightsUrl: "#",
+    imageList: [
+      "DSC_1650.jpg",
+      "DSC_1691.jpg",
+      "DSC_1712.jpg",
+      "DSC_1730.jpg",
+      "DSC_1775.jpg",
+      "DSC_1869.jpg",
+      "DSC_1909.jpg",
+      "DSC_2021.jpg",
+      "SAH06110.jpg",
+      "SAH06212.jpg",
+      "SAH06231.jpg",
+      "SAH06339.jpg",
+      "SAH06389.jpg",
+      "SAH06409.jpg",
+    ],
   },
   {
     id: "hack-a-preneur",

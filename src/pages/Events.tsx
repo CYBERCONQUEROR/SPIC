@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { upcomingEvents, pastEvents, type Event } from "@/data/events";
-import { Calendar, MapPin, Users, Mic, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, Users, Mic } from "lucide-react";
 import EventRegistration from "@/components/EventRegistration";
+import EventGallery from "@/components/EventGallery";
 
 type Filter = "all" | "upcoming" | "past";
 
@@ -23,7 +24,7 @@ const EventCard = ({
   event: Event;
   onRegister?: (event: Event) => void;
 }) => (
-  <Card className="h-full hover:shadow-md group">
+  <Card className="h-full group border border-border/70 glass-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-200">
     <CardContent className="p-5">
       <div className="flex items-start justify-between gap-3 mb-3">
         <h3 className="font-display font-semibold text-base">{event.name}</h3>
@@ -42,13 +43,13 @@ const EventCard = ({
         <Button size="sm" onClick={() => onRegister?.(event)}>
           Register Now
         </Button>
-      ) : event.highlightsUrl ? (
-        <Button asChild size="sm" variant="outline">
-          <a href={event.highlightsUrl} target="_blank" rel="noopener noreferrer">
-            Highlights <ExternalLink className="ml-1 h-3 w-3" />
-          </a>
+      ) : event.status === "ended" ? (
+        <EventGallery eventId={event.id} eventName={event.name} imageList={event.imageList} />
+      ) : (
+        <Button size="sm" variant="ghost" disabled className="text-muted-foreground">
+          Coming Soon
         </Button>
-      ) : null}
+      )}
     </CardContent>
   </Card>
 );

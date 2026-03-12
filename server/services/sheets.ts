@@ -89,7 +89,7 @@ export async function appendRegistrationRow(data: {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: "Sheet1!A:D",
+      range: "Sheet1!A:E",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -97,6 +97,7 @@ export async function appendRegistrationRow(data: {
             data.participantName,
             data.branch ?? "",
             data.year ?? "",
+            data.rollNumber ?? "",
             data.phone ?? "",
           ],
         ],
