@@ -16,45 +16,36 @@ export default function EventGallery({ eventId, eventName, imageList }: EventGal
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadImages();
-  }, [eventId, imageList]);
+    let mounted = true;
+    const loadImages = () => {
+      if (!mounted) return;
+      try {
+        setLoading(true);
+        setError(false);
+        const folderName = eventId.toLowerCase().replace(/\s+/g, "-");
+        const imageUrls: string[] = [];
 
-  const loadImages = async () => {
-    try {
-      setLoading(true);
-      setError(false);
-      const folderName = eventId.toLowerCase().replace(/\s+/g, "-");
-      const imageUrls: string[] = [];
-
-      // If imageList is provided, use those specific filenames
-      if (imageList && imageList.length > 0) {
-        // Directly add all provided image filenames
-        imageList.forEach(name => {
-          imageUrls.push(`/events/${folderName}/${name}`);
-        });
-        setImages(imageUrls);
-      } else {
-        // Fallback: try sequential naming (img1.jpg, img2.jpg, etc.)
-        for (let i = 1; i <= 30; i++) {
-          const imageUrl = `/events/${folderName}/img${i}.jpg`;
-          try {
-            const res = await fetch(imageUrl, { method: "HEAD", cache: "no-cache" });
-            if (res.ok) {
-              imageUrls.push(imageUrl);
-            }
-          } catch {
-            // Continue to next
-          }
+        // If imageList is provided, use those specific filenames
+        if (imageList && imageList.length > 0) {
+          imageList.forEach(name => {
+            imageUrls.push(`/events/${folderName}/${name}`);
+          });
+          setImages(imageUrls);
+        } else {
+          // Optimization: Removed massive sequential array queries that stall the client queue.
+          setImages([]);
         }
-        setImages(imageUrls);
+      } catch (err) {
+        console.error("Failed to load gallery images:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Failed to load gallery images:", err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    loadImages();
+    return () => { mounted = false; };
+  }, [eventId, imageList]);
 
   if (loading) {
     return (

@@ -14,7 +14,11 @@ function EventGalleryCard({ event }: { event: Event }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
-    const fetchImages = async () => {
+    let mounted = true;
+
+    const loadImages = () => {
+      if (!mounted) return;
+      
       try {
         setLoading(true);
         setError(false);
@@ -28,18 +32,9 @@ function EventGalleryCard({ event }: { event: Event }) {
           });
           setImages(imageUrls);
         } else {
-          for (let i = 1; i <= 30; i++) {
-            const imageUrl = `/events/${folderName}/img${i}.jpg`;
-            try {
-              const res = await fetch(imageUrl, { method: "HEAD", cache: "no-cache" });
-              if (res.ok) {
-                imageUrls.push(imageUrl);
-              }
-            } catch {
-              // Continue
-            }
-          }
-          setImages(imageUrls);
+          // Optimization: No longer making 30 arbitrary network calls
+          // Only rely on provided explicit image lists to not block the browser connection queue
+          setImages([]);
         }
       } catch (err) {
         console.error("Failed to load gallery images:", err);
@@ -49,7 +44,8 @@ function EventGalleryCard({ event }: { event: Event }) {
       }
     };
 
-    fetchImages();
+    loadImages();
+    return () => { mounted = false; };
   }, [event.id, event.imageList]);
 
   useEffect(() => {
