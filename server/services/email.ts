@@ -24,17 +24,19 @@ function buildTransport() {
     auth: { user, pass },
     logger: true,
     debug: true,
-    connectionTimeout: 20000, 
+    connectionTimeout: 20000,
     greetingTimeout: 20000,
     socketTimeout: 30000,
   };
 
   if (isGmail) {
-    // Explicitly using Port 465 with secure: true is often MORE stable on cloud providers/Render
-    // than using the 'service' shortcut or Port 587.
+    // Port 587 with secure: false (STARTTLS) is often more reliable on Render 
+    // because many cloud firewalls block Port 465/SSL by default.
     config.host = "smtp.gmail.com";
-    config.port = 465;
-    config.secure = true; 
+    config.port = 587;
+    config.secure = false; 
+    // Force IPv4 to avoid the ENETUNREACH error seen in logs (IPv6 issues)
+    config.family = 4;
   } else {
     config.host = host;
     config.port = Number(process.env.SMTP_PORT ?? 587);
