@@ -3,10 +3,12 @@ import { getServiceAccount } from "../db.js";
 
 // Re-use the same Firebase service account for Google Sheets access
 const serviceAccount = getServiceAccount() as any;
+const privateKey = serviceAccount.private_key?.replace(/\\n/g, "\n");
+
 const auth = new google.auth.GoogleAuth({
   credentials: {
     client_email: serviceAccount.client_email,
-    private_key: serviceAccount.private_key,
+    private_key: privateKey,
   },
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
@@ -27,10 +29,10 @@ export async function appendAttendanceRow(data: {
   eventDate: string;
   eventVenue: string;
 }): Promise<{ success: boolean; error?: string }> {
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetId = process.env.GOOGLE_SHEET_ID?.trim();
 
   if (!sheetId) {
-    console.warn("[sheets] GOOGLE_SHEET_ID not set — skipping attendance log.");
+    console.warn("[sheets] GOOGLE_SHEET_ID not set or empty \u2014 skipping attendance log.");
     return { success: false, error: "GOOGLE_SHEET_ID not configured." };
   }
 
@@ -79,10 +81,10 @@ export async function appendRegistrationRow(data: {
   eventVenue: string;
   createdAt: string;
 }): Promise<{ success: boolean; error?: string }> {
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetId = process.env.GOOGLE_SHEET_ID?.trim();
 
   if (!sheetId) {
-    console.warn("[sheets] GOOGLE_SHEET_ID not set \u2014 skipping registration log.");
+    console.warn("[sheets] GOOGLE_SHEET_ID not set or empty \u2014 skipping registration log.");
     return { success: false, error: "GOOGLE_SHEET_ID not configured." };
   }
 
