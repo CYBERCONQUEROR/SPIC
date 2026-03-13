@@ -22,18 +22,19 @@ function buildTransport() {
 
   const config: any = {
     auth: { user, pass },
-    // Nodemailer logger for detailed debugging in Render logs
     logger: true,
     debug: true,
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
-    socketTimeout: 20000,
+    connectionTimeout: 20000, 
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
   };
 
   if (isGmail) {
-    config.service = "gmail";
-    // Often Gmail works best on 587 with secure: false or 465 with secure: true
-    // When using service: 'gmail', nodemailer usually handles this, but let's be explicit if needed
+    // Explicitly using Port 465 with secure: true is often MORE stable on cloud providers/Render
+    // than using the 'service' shortcut or Port 587.
+    config.host = "smtp.gmail.com";
+    config.port = 465;
+    config.secure = true; 
   } else {
     config.host = host;
     config.port = Number(process.env.SMTP_PORT ?? 587);
@@ -171,9 +172,13 @@ export async function sendTicketEmail(
     return { success: true };
   } catch (err: any) {
     const isAuthMissing = !process.env.SMTP_USER || !process.env.SMTP_PASS;
-    console.error("[email] Failed to send ticket:", err.message);
+    console.error("[email] CRITICAL FAILURE sending ticket:");
+    console.error("Message:", err.message);
+    console.error("Code:", err.code);
+    console.error("Response:", err.response);
+    
     if (isAuthMissing) {
-      console.error("[email] CRITICAL: SMTP_USER or SMTP_PASS is not set in environment variables!");
+      console.error("[email] SMTP_USER or SMTP_PASS is not set in environment!");
     }
     return { success: false, error: err.message };
   }
