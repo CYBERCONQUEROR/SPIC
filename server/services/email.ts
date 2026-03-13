@@ -10,15 +10,42 @@ export interface TicketEmailData {
 }
 
 function buildTransport() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST ?? "smtp.gmail.com",
-    port: Number(process.env.SMTP_PORT ?? 587),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  const host = process.env.SMTP_HOST ?? "smtp.gmail.com";
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!user || !pass) {
+    console.error("[email] SMTP credentials missing!");
+  }
+
+  const isGmail = host.includes("gmail.com");
+
+  const config: any = {
+    auth: { user, pass },
+    // Nodemailer logger for detailed debugging in Render logs
+    logger: true,
+    debug: true,
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
+  };
+
+  if (isGmail) {
+    config.service = "gmail";
+    // Often Gmail works best on 587 with secure: false or 465 with secure: true
+    // When using service: 'gmail', nodemailer usually handles this, but let's be explicit if needed
+  } else {
+    config.host = host;
+    config.port = Number(process.env.SMTP_PORT ?? 587);
+    config.secure = process.env.SMTP_SECURE === "true";
+  }
+  
+  config.tls = {
+    rejectUnauthorized: false,
+    minVersion: "TLSv1.2"
+  };
+
+  return nodemailer.createTransport(config);
 }
 
 function buildHtml(data: TicketEmailData): string {
@@ -109,9 +136,23 @@ export async function sendTicketEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const transport = buildTransport();
+    
+    // Test the connection before attempting to send
+    try {
+      await transport.verify();
+      console.log("[email] SMTP connection verified successfully");
+    } catch (verifyErr: any) {
+      console.error("[email] SMTP Verification failed:", verifyErr.message);
+      // Continue anyway, but we've logged the issue
+    }
+
+    // Log info for debugging in Render (password masked)
+    console.log(`[email] Attempting to send email to ${data.to} via ${process.env.SMTP_HOST ?? "smtp.gmail.com"} as ${process.env.SMTP_USER || "MISSING_USER"}`);
 
     // Extract raw base64 from data-URL for CID attachment
-    const base64 = data.qrDataUrl.replace(/^data:image\/png;base64,/, "");
+    // Ensure we handle potential whitespace or encoding issues
+    const base64 = data.qrDataUrl.split(',')[1] || data.qrDataUrl;
+    console.log(`[email] QR base64 extracted, length: ${base64.length} chars`);
 
     await transport.sendMail({
       from: `"SPIC Events" <${process.env.SMTP_USER}>`,
@@ -129,7 +170,11 @@ export async function sendTicketEmail(
 
     return { success: true };
   } catch (err: any) {
+    const isAuthMissing = !process.env.SMTP_USER || !process.env.SMTP_PASS;
     console.error("[email] Failed to send ticket:", err.message);
+    if (isAuthMissing) {
+      console.error("[email] CRITICAL: SMTP_USER or SMTP_PASS is not set in environment variables!");
+    }
     return { success: false, error: err.message };
   }
 }

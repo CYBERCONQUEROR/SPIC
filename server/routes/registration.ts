@@ -30,7 +30,10 @@ router.post("/", async (req: Request, res: Response) => {
     .get();
 
   if (!duplicateCheck.empty) {
-    res.status(409).json({ error: "You are already registered for this event." });
+    // If getting 409, it means the registration already exists in Firebase
+    res.status(409).json({ 
+      error: "You are already registered for this event with this email. Please use a different email or check your existing ticket." 
+    });
     return;
   }
 
