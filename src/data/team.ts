@@ -55,8 +55,8 @@ export const departmentHeads: TeamMember[] = [
 ];
 
 export const teamMembers: TeamMember[] = [
-  { id: "tm-1", name: "Akshat Uniyal ", role: "Member", department: "Event Management" },
-  { id: "tm-2", name: "Arpit Yadav", role: "Member", department: "Technical Team" },
+  { id: "tm-1", name: "Vishal Singh ", role: "Member", department: "Event Management" },
+  { id: "tm-2", name: "Vansh Tyagi", role: "Member", department: "Technical Team" },
   { id: "tm-3", name: "Gagan Kesarwani", role: "Member", department: "Design & Creatives" },
   { id: "tm-4", name: "Ritesh Yadav", role: "Member", department: "Public Relations" },
   { id: "tm-5", name: "Sarthak Pandey", role: "Member", department: "Content & Social Media" },
@@ -79,7 +79,7 @@ export const teamMembers: TeamMember[] = [
   { id: "tm-22", name: "Omansh Arora", role: "Member", department: "Technical Team" },
   { id: "tm-23", name: "Pushkar Tiwari", role: "Member", department: "Technical Team" },
   { id: "tm-24", name: "Rajnikant", role: "Member", department: "Technical Team" },
-  { id: "tm-25", name: "Vansh Tyagi ", role: "Member", department: "Technical Team" },
+  { id: "tm-25", name: "Arpit Yadav", role: "Member", department: "Technical Team" },
   { id: "tm-26", name: "Akriti Singh", role: "Member", department: "Technical Team" },
   { id: "tm-27", name: "Archita Prajapati", role: "Member", department: "Content & Social Media" },
   { id: "tm-28", name: "Adhiya Jha", role: "Member", department: "Content & Social Media" },
@@ -88,7 +88,7 @@ export const teamMembers: TeamMember[] = [
   { id: "tm-31", name: "Ayush Bisht", role: "Member", department: "Content & Social Media" },
   { id: "tm-32", name: "Navya", role: "Member", department: "Content & Social Media" },
   { id: "tm-33", name: "Saizal Verma", role: "Member", department: "Content & Social Media" },
-  { id: "tm-34", name: "Vishal Singh ", role: "Member", department: "Content & Social Media" },
+  { id: "tm-34", name: "Akshat Uniyal ", role: "Member", department: "Content & Social Media" },
   { id: "tm-35", name: "Pranav Tyagi", role: "Member", department: "Content & Social Media" },
   { id: "tm-36", name: "Aditya Chauhan", role: "Member", department: "Content & Social Media" },
   { id: "tm-37", name: "Utkarsh Tyagi", role: "Member", department: "Content & Social Media" },

@@ -1,4 +1,4 @@
-import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
+import { initializeApp, cert, getApps, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -27,7 +27,9 @@ export function getServiceAccount(): ServiceAccount {
 export function getDb(): Firestore {
   if (!db) {
     const serviceAccount = getServiceAccount();
-    initializeApp({ credential: cert(serviceAccount) });
+    if (!getApps().length) {
+      initializeApp({ credential: cert(serviceAccount) });
+    }
     db = getFirestore();
   }
   return db;
