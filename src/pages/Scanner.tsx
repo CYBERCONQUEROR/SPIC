@@ -17,7 +17,7 @@ import {
 
 type Mode = "camera" | "manual";
 
-const ADMIN_PIN = "spic2026";
+const ADMIN_PIN = "spic@2026";
 const SCANNER_ELEMENT_ID = "qr-reader";
 
 export default function Scanner() {

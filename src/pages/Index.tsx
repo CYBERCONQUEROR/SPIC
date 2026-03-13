@@ -82,9 +82,8 @@ const Index = () => {
 
         <AnimatedSection className="max-w-4xl relative">
           <div className="mb-12">
-            <div className="inline-block rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-8 py-4 shadow-lg shadow-primary/20 backdrop-blur-sm mb-8">
+            <div className="inline-block rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-8 py-4 shadow-lg shadow-primary/20 backdrop-blur-sm mb-8 mt-4 sm:mt-10">
               <span className="inline-flex items-center gap-3">
-                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
                 <span className="text-lg sm:text-xl font-bold text-primary uppercase tracking-wider">
                   Entrepreneurship Cell RKGIT
                 </span>

@@ -70,51 +70,42 @@ export default function ImageLightbox({
         </Button>
 
         {/* Main Image */}
-        <div className="relative w-[95vw] h-[85vh] flex items-center justify-center">
-          {imageError ? (
-            <div className="w-full h-full flex items-center justify-center bg-black/50 rounded-lg">
-              <div className="text-center text-white">
-                <p className="mb-2">Failed to load image</p>
-                <p className="text-sm text-gray-400">{currentImage}</p>
-              </div>
-            </div>
-          ) : (
-            <img
-              key={currentImage}
-              src={currentImage}
-              alt={`Gallery image ${currentIndex + 1}`}
-              className="max-w-full max-h-full object-contain rounded-lg animate-in fade-in duration-300"
-              onError={() => setImageError(true)}
-              loading="eager"
-            />
-          )}
+        <div className="relative w-[95vw] h-[85vh] flex items-center justify-center overflow-hidden">
+          <img
+            key={currentImage}
+            src={currentImage}
+            alt={`Gallery image ${currentIndex + 1}`}
+            className="max-w-full max-h-full object-contain rounded-lg animate-in fade-in zoom-in-95 duration-500 will-change-transform"
+            onError={() => setImageError(true)}
+            loading="eager"
+          />
 
           {/* Navigation Buttons */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10"
+            className="absolute left-0 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 sm:h-14 sm:w-14"
             onClick={handlePrev}
           >
-            <ChevronLeft className="h-8 w-8" />
+            <ChevronLeft className="h-8 w-8 sm:h-10 sm:w-10" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10"
+            className="absolute right-0 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 sm:h-14 sm:w-14"
             onClick={handleNext}
           >
-            <ChevronRight className="h-8 w-8" />
+            <ChevronRight className="h-8 w-8 sm:h-10 sm:w-10" />
           </Button>
         </div>
 
         {/* Image Counter */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm font-medium bg-black/50 px-4 py-2 rounded-full">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm font-medium bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
           {currentIndex + 1} / {images.length}
         </div>
 
-        {/* Thumbnail Strip */}
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 max-w-full overflow-x-auto px-4 pb-2">
+        {/* Thumbnail Strip - Optimized with lazy loading */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2 scrollbar-none no-scrollbar">
           {images.map((img, idx) => (
             <button
               key={idx}
@@ -122,17 +113,15 @@ export default function ImageLightbox({
                 setCurrentIndex(idx);
                 setImageError(false);
               }}
-              className={`relative h-12 w-12 rounded overflow-hidden transition-all flex-shrink-0 ${
-                idx === currentIndex ? "ring-2 ring-primary scale-110" : "opacity-60 hover:opacity-100"
+              className={`relative h-14 w-14 rounded-md overflow-hidden transition-all flex-shrink-0 border-2 ${
+                idx === currentIndex ? "border-primary scale-110 shadow-lg z-10" : "border-transparent opacity-40 hover:opacity-100"
               }`}
             >
               <img
                 src={img}
                 alt={`Thumbnail ${idx + 1}`}
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.opacity = "0.3";
-                }}
+                loading="lazy"
               />
             </button>
           ))}

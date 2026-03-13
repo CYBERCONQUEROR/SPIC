@@ -4,55 +4,32 @@ import AnimatedSection from "@/components/AnimatedSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageIcon } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
+import SmartImage from "@/components/SmartImage";
 import { pastEvents, type Event } from "@/data/events";
 
 function EventGalleryCard({ event }: { event: Event }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [images, setImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
+    const folderName = event.id.toLowerCase().replace(/\s+/g, "-");
+    const imageUrls: string[] = [];
+    const imageList = event.imageList;
 
-    const loadImages = () => {
-      if (!mounted) return;
-      
-      try {
-        setLoading(true);
-        setError(false);
-        const folderName = event.id.toLowerCase().replace(/\s+/g, "-");
-        const imageUrls: string[] = [];
-        const imageList = event.imageList;
-
-        if (imageList && imageList.length > 0) {
-          imageList.forEach((name) => {
-            imageUrls.push(`/events/${folderName}/${name}`);
-          });
-          setImages(imageUrls);
-        } else {
-          // Optimization: No longer making 30 arbitrary network calls
-          // Only rely on provided explicit image lists to not block the browser connection queue
-          setImages([]);
-        }
-      } catch (err) {
-        console.error("Failed to load gallery images:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadImages();
-    return () => { mounted = false; };
+    if (imageList && imageList.length > 0) {
+      imageList.forEach((name) => {
+        imageUrls.push(`/events/${folderName}/${name}`);
+      });
+      setImages(imageUrls);
+    }
   }, [event.id, event.imageList]);
 
   useEffect(() => {
-    if (searchParams.get("event") === event.id && images.length > 0 && !loading) {
+    if (searchParams.get("event") === event.id && images.length > 0) {
       setLightboxOpen(true);
     }
-  }, [searchParams, event.id, images.length, loading]);
+  }, [searchParams, event.id, images.length]);
 
   const handleOpenChange = (open: boolean) => {
     setLightboxOpen(open);
@@ -63,36 +40,25 @@ function EventGalleryCard({ event }: { event: Event }) {
     }
   };
 
-  if (loading) {
-    return (
-      <Card className="aspect-[4/3] animate-pulse bg-muted rounded-lg border-border/70 flex items-center justify-center">
-        <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
-      </Card>
-    );
-  }
-
-  if (error || images.length === 0) {
-    return null;
-  }
+  if (images.length === 0) return null;
 
   return (
     <>
       <Card
-        className="group overflow-hidden cursor-pointer border border-border/70 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+        className="group overflow-hidden cursor-pointer border border-border/70 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col will-change-transform"
         onClick={() => setLightboxOpen(true)}
       >
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          <img
+        <div className="relative overflow-hidden">
+          <SmartImage
             src={images[0]}
             alt={event.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
+            className="group-hover:scale-105 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
             <ImageIcon className="text-white h-10 w-10 shadow-sm" />
           </div>
         </div>
-        <CardContent className="p-5 flex-1 glass-card">
+        <CardContent className="p-5 flex-1 glass-card border-t-0">
           <h3 className="font-display font-semibold text-lg mb-1">{event.name}</h3>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <ImageIcon className="h-3 w-3" />

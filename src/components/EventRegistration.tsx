@@ -232,16 +232,13 @@ export default function EventRegistration({ event, open, onOpenChange }: Props) 
               Present this QR code at the event entrance for scanning.
             </p>
 
-            <div className="flex gap-2">
+            <div className="flex justify-center">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="w-full sm:w-auto min-w-[120px]"
                 onClick={() => handleClose(false)}
               >
                 Close
-              </Button>
-              <Button asChild className="flex-1">
-                <a href="/dashboard">View Dashboard</a>
               </Button>
             </div>
           </div>

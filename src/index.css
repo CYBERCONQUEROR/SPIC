@@ -6,47 +6,32 @@
 
 @layer base {
   :root {
-    /* Default to a slightly dark, desaturated theme for a premium feel */
-    --background: 225 35% 7%;
-    --foreground: 210 25% 96%;
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
 
-    --card: 225 32% 10%;
-    --card-foreground: 210 25% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
 
-    --popover: 225 32% 9%;
-    --popover-foreground: 210 25% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
 
-    /* Electric blue primary inspired by modern SaaS brands */
     --primary: 224 85% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 210 20% 98%;
 
-    --secondary: 225 25% 14%;
-    --secondary-foreground: 210 25% 96%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71.4% 4.1%;
 
-    --muted: 225 20% 16%;
-    --muted-foreground: 220 12% 65%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8.9% 46.1%;
 
-    /* Accent with a subtle purple/orange glow for highlights */
-    --accent: 260 80% 65%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 260 81% 64%;
+    --accent-foreground: 210 20% 98%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 225 28% 20%;
-    --input: 225 28% 20%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 224 85% 60%;
 
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -64,20 +49,42 @@
     --muted-foreground: 215 15% 60%;
     --accent: 260 80% 67%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 30% 96%;
     --border: 225 26% 18%;
     --input: 225 26% 18%;
     --ring: 224 88% 64%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .midnight {
+    --background: 222 47% 11%;
+    --foreground: 214 32% 91%;
+    --card: 222 47% 13%;
+    --card-foreground: 214 32% 91%;
+    --primary: 199 89% 48%;
+    --secondary: 222 47% 18%;
+    --accent: 191 97% 77%;
+    --border: 222 47% 22%;
+  }
+
+  .violet {
+    --background: 273 67% 4%;
+    --foreground: 210 40% 98%;
+    --card: 273 67% 7%;
+    --card-foreground: 210 40% 98%;
+    --primary: 270 91% 65%;
+    --secondary: 273 67% 12%;
+    --accent: 316 70% 50%;
+    --border: 273 67% 16%;
+  }
+}
+
+/* Glass card adjustment for better visibility in light mode */
+.glass-card {
+  background: hsla(var(--card), 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsla(var(--border), 0.5);
+}
+.dark .glass-card, .midnight .glass-card, .violet .glass-card {
+  background: hsla(var(--card), 0.9);
 }
 
 @layer base {
