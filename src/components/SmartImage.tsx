@@ -56,6 +56,7 @@ export default function SmartImage({
             className
           )}
           loading="lazy"
+          decoding="async"
           {...props}
         />
       )}

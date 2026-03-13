@@ -23,6 +23,22 @@ export default function ImageLightbox({
     setImageError(false);
   }, [initialIndex, open]);
 
+  // Prefetch neighboring images for instant transitions
+  useEffect(() => {
+    if (!open || images.length <= 1) return;
+    
+    const prefetch = (index: number) => {
+      const img = new Image();
+      img.src = images[index];
+    };
+
+    const nextIndex = (currentIndex + 1) % images.length;
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    
+    prefetch(nextIndex);
+    prefetch(prevIndex);
+  }, [currentIndex, open, images]);
+
   useEffect(() => {
     if (!open) return;
 
