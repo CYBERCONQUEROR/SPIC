@@ -16,6 +16,7 @@ const AnimatedSection = ({ children, className, delay = 0 }: AnimatedSectionProp
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
+      style={{ willChange: "transform, opacity" }}
       transition={{ duration: 0.4, delay, ease: "easeOut" }}
       className={className}
     >

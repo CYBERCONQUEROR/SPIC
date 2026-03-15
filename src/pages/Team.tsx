@@ -24,7 +24,7 @@ const MemberCard = ({
 }: MemberCardProps) => (
   <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.18, ease: "easeOut" }}>
     <Card
-      className="h-full group cursor-pointer overflow-hidden rounded-xl border border-border/60 bg-card/80 shadow-md hover:shadow-xl hover:border-border transition-transform transition-shadow duration-200"
+      className="h-full group cursor-pointer overflow-hidden rounded-xl border border-border/60 bg-card/80 shadow-md hover:shadow-xl hover:border-border transition-all duration-300 will-change-transform"
       onClick={onClick}
     >
       <CardContent className={size === "lg" ? "p-5 text-center" : "p-4 text-center"}>
@@ -42,6 +42,8 @@ const MemberCard = ({
                 src={member.image}
                 alt={member.name}
                 className={`${size === "lg" ? "h-20 w-20" : size === "md" ? "h-16 w-16" : "h-12 w-12"} rounded-full object-cover`}
+                loading="lazy"
+                decoding="async"
               />
             ) : (
               <User className={`text-primary ${size === "lg" ? "h-8 w-8" : size === "md" ? "h-6 w-6" : "h-5 w-5"}`} />
@@ -175,6 +177,8 @@ const Team = () => {
                       src={activeMember.image}
                       alt={activeMember.name}
                       className="h-24 w-24 rounded-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <User className="h-10 w-10 text-primary" />
