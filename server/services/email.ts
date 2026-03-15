@@ -20,35 +20,37 @@ function buildTransport() {
 
   const isGmail = host.includes("gmail.com");
 
-  const config: any = {
+  // If using Gmail, use the 'service' property which is more reliable on Render
+  if (isGmail) {
+    return nodemailer.createTransport({
+      service: "gmail",
+      auth: { user, pass },
+      logger: true,
+      debug: true,
+      pool: true, // Reuse connections
+      // Increase timeouts for cloud stability
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 30000,
+      tls: {
+        rejectUnauthorized: false, // Prevents certificate issues in cloud
+      }
+    });
+  }
+
+  // Generic SMTP config
+  return nodemailer.createTransport({
+    host,
+    port: Number(process.env.SMTP_PORT ?? 587),
+    secure: process.env.SMTP_SECURE === "true",
     auth: { user, pass },
     logger: true,
     debug: true,
-    connectionTimeout: 20000,
-    greetingTimeout: 20000,
-    socketTimeout: 30000,
-  };
-
-  if (isGmail) {
-    // Port 587 with secure: false (STARTTLS) is often more reliable on Render 
-    // because many cloud firewalls block Port 465/SSL by default.
-    config.host = "smtp.gmail.com";
-    config.port = 587;
-    config.secure = false; 
-    // Force IPv4 to avoid the ENETUNREACH error seen in logs (IPv6 issues)
-    config.family = 4;
-  } else {
-    config.host = host;
-    config.port = Number(process.env.SMTP_PORT ?? 587);
-    config.secure = process.env.SMTP_SECURE === "true";
-  }
-  
-  config.tls = {
-    rejectUnauthorized: false,
-    minVersion: "TLSv1.2"
-  };
-
-  return nodemailer.createTransport(config);
+    tls: {
+      rejectUnauthorized: false,
+      minVersion: "TLSv1.2",
+    },
+  });
 }
 
 function buildHtml(data: TicketEmailData): string {

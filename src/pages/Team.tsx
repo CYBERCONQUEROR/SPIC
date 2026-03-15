@@ -42,6 +42,7 @@ const MemberCard = ({
                 src={member.image}
                 alt={member.name}
                 className={`${size === "lg" ? "h-20 w-20" : size === "md" ? "h-16 w-16" : "h-12 w-12"} rounded-full object-cover`}
+                style={{ objectPosition: member.objectPosition || 'center' }}
                 loading="lazy"
                 decoding="async"
               />
@@ -177,6 +178,7 @@ const Team = () => {
                       src={activeMember.image}
                       alt={activeMember.name}
                       className="h-24 w-24 rounded-full object-cover"
+                      style={{ objectPosition: activeMember.objectPosition || 'center' }}
                       loading="lazy"
                       decoding="async"
                     />

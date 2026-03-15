@@ -6,6 +6,7 @@ export interface TeamMember {
   linkedinUrl?: string;
   image?: string;
   bio?: string;
+  objectPosition?: string;
 }
 
 export const facultyAdvisor: TeamMember = {
@@ -38,7 +39,7 @@ export const departmentHeads: TeamMember[] = [
   { id: "dh-2", name: "Pranjal Dubey", role: "Head", department: "PublicRelations", linkedinUrl: "#", image: "/IMG_20250405_155938248_HDR_AE - Pranjal Dubey.jpeg" },
   { id: "dh-2", name: "Prateek Dixit", role: "Co-Head", department: "PublicRelations", linkedinUrl: "#", image: "/retouch_2025091801391880 - Prateek Dixit.jpg" },
   { id: "dh-2", name: "Daksh Chaudhary", role: "Head", department: "Designing", linkedinUrl: "#", image: "/Daksh Chaudhary - Daksh Choudhary.jpg" },
-  { id: "dh-2", name: "Shivam Vashisth", role: "Co-Head", department: "Designing", linkedinUrl: "#", image: "/IMG-20251106-WA0031 - Shivam Vashisth.jpg" },
+  { id: "dh-2", name: "Shivam Vashisth", role: "Co-Head", department: "Designing", linkedinUrl: "#", image: "/IMG-20251106-WA0031 - Shivam Vashisth.jpg", objectPosition: "center 20%" },
   { id: "dh-2", name: "Ashmit Kumar", role: "Head", department: "Technical", linkedinUrl: "#" },
   { id: "dh-2", name: "Nikhil Gaurav", role: "Co-Head", department: "Technical", linkedinUrl: "#" },
   { id: "dh-2", name: "Meghna Kandpal", role: "Head", department: "SocialMedia", linkedinUrl: "#", image: "/IMG_1741869018013 - Meghna Kandpal.jpg" },

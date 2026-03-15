@@ -47,12 +47,13 @@ async function optimize() {
       const tempPath = filePath + '.tmp';
       
       let pipeline = sharp(filePath)
+        .rotate() // Automatically rotate based on EXIF
         .resize({ width: maxWidth, withoutEnlargement: true });
 
       if (ext === '.jpg' || ext === '.jpeg') {
-        pipeline = pipeline.jpeg({ quality: 80, mozjpeg: true });
+        pipeline = pipeline.jpeg({ quality: 85, mozjpeg: true });
       } else if (ext === '.png') {
-        pipeline = pipeline.png({ quality: 80, palette: true });
+        pipeline = pipeline.png({ quality: 85, palette: true });
       }
 
       await pipeline.toFile(tempPath);
@@ -60,16 +61,11 @@ async function optimize() {
       const newStats = fs.statSync(tempPath);
       const newSize = newStats.size;
 
-      if (newSize < originalSize) {
-        fs.unlinkSync(filePath);
-        fs.renameSync(tempPath, filePath);
-        const saved = originalSize - newSize;
-        totalSaved += saved;
-        console.log(`Optimized ${path.basename(filePath)}: ${(originalSize / 1024 / 1024).toFixed(2)} MB -> ${(newSize / 1024).toFixed(2)} KB (Saved ${(saved / 1024 / 1024).toFixed(2)} MB)`);
-      } else {
-        fs.unlinkSync(tempPath);
-        console.log(`Skipped ${path.basename(filePath)}: No size reduction.`);
-      }
+      fs.unlinkSync(filePath);
+      fs.renameSync(tempPath, filePath);
+      const saved = originalSize - newSize;
+      if (saved > 0) totalSaved += saved;
+      console.log(`Processed ${path.basename(filePath)}: ${(originalSize / 1024).toFixed(2)} KB -> ${(newSize / 1024).toFixed(2)} KB`);
     } catch (err) {
       console.error(`Error optimizing ${filePath}:`, err.message);
     }

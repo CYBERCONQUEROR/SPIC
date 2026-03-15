@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import AnimatedSection from "@/components/AnimatedSection";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageIcon } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
@@ -25,11 +26,6 @@ function EventGalleryCard({ event }: { event: Event }) {
     }
   }, [event.id, event.imageList]);
 
-  useEffect(() => {
-    if (searchParams.get("event") === event.id && images.length > 0) {
-      setLightboxOpen(true);
-    }
-  }, [searchParams, event.id, images.length]);
 
   const handleOpenChange = (open: boolean) => {
     setLightboxOpen(open);
@@ -77,6 +73,13 @@ function EventGalleryCard({ event }: { event: Event }) {
 }
 
 const Gallery = () => {
+  const [searchParams] = useSearchParams();
+  const eventFilter = searchParams.get("event");
+
+  const displayedEvents = eventFilter
+    ? pastEvents.filter(e => e.id === eventFilter)
+    : pastEvents;
+
   return (
     <main>
       <section className="section-padding text-center px-4">
@@ -91,11 +94,19 @@ const Gallery = () => {
       <section className="section-padding-sm pt-0 border-t-0">
         <div className="container mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {pastEvents.map((event, i) => (
+            {displayedEvents.map((event, i) => (
               <AnimatedSection key={event.id} delay={i * 0.05}>
                 <EventGalleryCard event={event} />
               </AnimatedSection>
             ))}
+            {eventFilter && displayedEvents.length === 0 && (
+              <div className="col-span-full py-20 text-center">
+                <p className="text-muted-foreground">Event gallery not found.</p>
+                <Button variant="link" onClick={() => window.location.href = '/gallery'}>
+                  View All Gallery
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>
