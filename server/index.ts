@@ -42,4 +42,23 @@ app.use((req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`[server] App (API + Web) running on port ${PORT}`);
+
+  // ─── Render Keep-Alive (Heartbeat) ──────────────────────────────────
+  // Pings the external URL every 14 mins to prevent free tier from sleeping
+  const EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+  if (EXTERNAL_URL) {
+    console.log(`[heartbeat] Initializing keep-alive for ${EXTERNAL_URL}`);
+    setInterval(async () => {
+      try {
+        console.log(`[heartbeat] Pinging health endpoint...`);
+        const response = await fetch(`${EXTERNAL_URL}/api/health`);
+        const data = await response.json();
+        console.log(`[heartbeat] Status: ${data.status}`);
+      } catch (error) {
+        console.error(`[heartbeat] Ping failed:`, error instanceof Error ? error.message : error);
+      }
+    }, 14 * 60 * 1000); // 14 minutes
+  } else {
+    console.log(`[heartbeat] RENDER_EXTERNAL_URL not found, skip-pinging.`);
+  }
 });
