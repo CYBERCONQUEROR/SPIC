@@ -17,26 +17,22 @@ function buildTransport() {
     console.error("[email] SMTP credentials missing!");
   }
 
-  // Force port 587 and IPv4 for Render compatibility
-  const smtpConfig: any = {
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use STARTTLS
-    auth: { user, pass },
-    logger: true,
-    debug: true,
-    // Explicitly force IPv4 to avoid ENETUNREACH in cloud environments
-    family: 4,
-    connectionTimeout: 40000, // 40s timeout
-    greetingTimeout: 30000,
-    socketTimeout: 60000,
-    tls: {
-      rejectUnauthorized: false,
-      minVersion: "TLSv1.2",
+  // Using service: 'gmail' is the most robust way for Gmail accounts
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: user,
+      pass: pass,
     },
-  };
-
-  return nodemailer.createTransport(smtpConfig);
+    // Adding pool for better performance in concurrent requests
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    // Adjust timeouts
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
+  });
 }
 
 function buildHtml(data: TicketEmailData): string {

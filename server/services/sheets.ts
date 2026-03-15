@@ -16,8 +16,8 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: "v4", auth });
 
 /**
- * Append a check-in row to the configured Google Sheet.
- * Columns: Registration ID | Name | Email | Phone | Roll Number | Year | Event | Event Date | Venue | Attendance Timestamp
+ * Update attendance status in the existing registration row.
+ * Searches for rollNumber in Column D and updates Column F to 'Present' and Column G to timestamp.
  */
 export async function appendAttendanceRow(data: {
   participantName: string;
@@ -32,35 +32,67 @@ export async function appendAttendanceRow(data: {
   const sheetId = process.env.GOOGLE_SHEET_ID?.trim();
 
   if (!sheetId) {
-    console.warn("[sheets] GOOGLE_SHEET_ID not set or empty \u2014 skipping attendance log.");
+    console.warn("[sheets] GOOGLE_SHEET_ID not set or empty — skipping attendance update.");
     return { success: false, error: "GOOGLE_SHEET_ID not configured." };
   }
 
+  if (!data.rollNumber) {
+    return { success: false, error: "Roll number required to find existing row." };
+  }
+
   try {
-    await sheets.spreadsheets.values.append({
+    // 1. Fetch Roll Numbers from Column D to find the row
+    const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: "Sheet1!A:I",
+      range: "Sheet1!D:D",
+    });
+
+    const rows = response.data.values || [];
+    const rollNumberToMatch = data.rollNumber.trim();
+    
+    // Find row index (0-based, but we need 1-based for Sheets API)
+    // We match the trimmed roll number
+    const rowIndex = rows.findIndex(row => row[0]?.toString().trim() === rollNumberToMatch);
+
+    if (rowIndex === -1) {
+      console.warn(`[sheets] Roll number ${rollNumberToMatch} not found in sheet. Falling back to append.`);
+      // Fallback: If not found, append to the end using same structure as registration
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: sheetId,
+        range: "Sheet1!A:G",
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+          values: [[
+            data.participantName, 
+            "", // Branch unknown in fallback
+            data.year ?? "", 
+            rollNumberToMatch, 
+            data.phone ?? "", 
+            "Present", 
+            new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+          ]],
+        },
+      });
+      return { success: true };
+    }
+
+    // 2. Update Column F (Present) and G (Time) for that specific row
+    const updateRange = `Sheet1!F${rowIndex + 1}:G${rowIndex + 1}`;
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId,
+      range: updateRange,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
-          [
-            data.participantName,
-            data.participantEmail,
-            data.phone ?? "",
-            data.rollNumber ?? "",
-            data.year ?? "",
-            data.eventName,
-            data.eventDate,
-            "Present",
-            new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-          ],
+          ["Present", new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })],
         ],
       },
     });
 
+    console.log(`[sheets] Marked attendance for ${data.participantName} at row ${rowIndex + 1}`);
     return { success: true };
   } catch (err: any) {
-    console.error("[sheets] Failed to append row:", err.message);
+    console.error("[sheets] Failed to update attendance:", err.message);
     return { success: false, error: err.message };
   }
 }
@@ -92,7 +124,7 @@ export async function appendRegistrationRow(data: {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: "Sheet1!A:E",
+      range: "Sheet1!A:G",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -100,8 +132,10 @@ export async function appendRegistrationRow(data: {
             data.participantName,
             data.branch ?? "",
             data.year ?? "",
-            data.rollNumber ?? "",
+            data.rollNumber ? data.rollNumber.toString().trim() : "",
             data.phone ?? "",
+            "Absent", // Column F: Attendance
+            "",       // Column G: Time
           ],
         ],
       },

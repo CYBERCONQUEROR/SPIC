@@ -210,57 +210,8 @@ export default function Scanner() {
       <section className="section-padding-sm border-t border-border/40">
         <div className="container mx-auto px-4 max-w-lg">
           {/* Result display */}
-          {result && (
-            <AnimatedSection>
-              <Card
-                className={`mb-6 border-2 ${
-                  result.valid
-                    ? "border-green-500 bg-green-50 dark:bg-green-950/30"
-                    : "border-destructive bg-destructive/5"
-                }`}
-              >
-                <CardContent className="p-6 text-center">
-                  {result.valid ? (
-                    <>
-                      <CheckCircle2 className="h-14 w-14 text-green-600 mx-auto mb-3" />
-                      <h3 className="font-display text-lg font-semibold text-green-700 dark:text-green-400 mb-1">
-                        Entry Approved
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        <strong>{result.participantName}</strong>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {result.participantEmail} · {result.eventName}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <XCircle className="h-14 w-14 text-destructive mx-auto mb-3" />
-                      <h3 className="font-display text-lg font-semibold text-destructive mb-1">
-                        Entry Denied
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {result.error}
-                      </p>
-                    </>
-                  )}
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={handleReset}
-                  >
-                    Scan Next
-                  </Button>
-                </CardContent>
-              </Card>
-            </AnimatedSection>
-          )}
 
-          {error && !result && (
-            <div className="mb-6 text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
-              {error}
-            </div>
-          )}
+          {/* Result display is now handled by the camera overlay */}
 
           {/* Mode toggle */}
           {!result && (
@@ -296,22 +247,83 @@ export default function Scanner() {
                     </h2>
                   </div>
 
-                  <div
-                    id={SCANNER_ELEMENT_ID}
-                    className="w-full rounded-md overflow-hidden bg-muted min-h-[300px]"
-                  />
+                  <div className="relative w-full rounded-md overflow-hidden bg-muted min-h-[300px]">
+                    <div
+                      id={SCANNER_ELEMENT_ID}
+                      className="w-full"
+                    />
+                    
+                    {/* Overlay for results */}
+                    {(result || error) && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-sm z-10 animate-in fade-in duration-300">
+                        {loading ? (
+                          <div className="text-white flex flex-col items-center">
+                            <Loader2 className="h-12 w-12 animate-spin mb-4 text-primary" />
+                            <p className="text-lg font-medium">Verifying Ticket...</p>
+                          </div>
+                        ) : result ? (
+                          <div className="text-center w-full px-4">
+                            {result.valid ? (
+                              <>
+                                <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-4" />
+                                <h3 className="text-2xl font-bold text-white mb-2">APPROVED</h3>
+                                <p className="text-white/90 text-sm mb-1 uppercase tracking-wider">{result.participantName}</p>
+                                <p className="text-white/70 text-xs">{result.eventName}</p>
+                              </>
+                            ) : (
+                              <div className="bg-destructive/90 p-6 rounded-xl border-2 border-white/20 backdrop-blur-md w-full shadow-2xl">
+                                <XCircle className="h-16 w-16 text-white mx-auto mb-4" />
+                                <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-tighter">ALREADY USED</h3>
+                                <p className="text-white/90 text-sm font-medium">
+                                  {result.error}
+                                </p>
+                              </div>
+                            )}
+                            <Button 
+                              size="lg" 
+                              className={`mt-8 px-10 shadow-lg ${result.valid ? 'bg-green-600 hover:bg-green-700' : 'bg-white text-destructive hover:bg-white/90'}`}
+                              onClick={handleReset}
+                            >
+                              Scan Next
+                            </Button>
+                          </div>
+                        ) : error ? (
+                          <div className="bg-destructive/90 p-6 rounded-xl border-2 border-white/20 backdrop-blur-md w-full max-w-[90%] shadow-2xl text-center">
+                            <XCircle className="h-16 w-16 text-white mx-auto mb-4" />
+                            <h2 className="text-xl font-bold text-white mb-2 uppercase">DENIED</h2>
+                            <p className="text-white/90 text-sm font-medium mb-6 leading-tight">{error}</p>
+                            <Button 
+                              onClick={handleReset}
+                              className="bg-white text-destructive hover:bg-white/90"
+                            >
+                              Try Again
+                            </Button>
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
 
-                  {loading && (
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Verifying…
-                    </div>
+                    {/* Scanning indicator */}
+                    {!result && !error && scanning && !loading && (
+                      <div className="absolute inset-0 pointer-events-none border-2 border-primary/30 rounded-md">
+                        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-primary/60 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-scan" style={{ animation: 'scan 2s linear infinite' }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <style>{`
+                    @keyframes scan {
+                      0%, 100% { top: 10%; }
+                      50% { top: 90%; }
+                    }
+                  `}</style>
+
+                  {!loading && !result && !error && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      Position the QR ticket inside the scanner frame. It will be
+                      verified automatically.
+                    </p>
                   )}
-
-                  <p className="text-xs text-muted-foreground text-center">
-                    Position the QR ticket inside the scanner frame. It will be
-                    verified automatically.
-                  </p>
                 </CardContent>
               </Card>
             </AnimatedSection>
