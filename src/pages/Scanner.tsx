@@ -107,16 +107,18 @@ export default function Scanner() {
 
   // Auto-start camera when conditions are right
   useEffect(() => {
-    if (authenticated && mode === "camera" && !result) {
+    // Only launch if authenticated, in camera mode, and NO result/error is being shown
+    if (authenticated && mode === "camera" && !result && !error) {
       const timer = setTimeout(() => launchCamera(), 350);
       return () => {
         clearTimeout(timer);
         destroyScanner();
       };
+    } else {
+      // If result or error exists, or not authenticated, tear down the scanner
+      destroyScanner();
     }
-    // If conditions not met, tear down
-    destroyScanner();
-  }, [authenticated, mode, result]);
+  }, [authenticated, mode, result, error]);
 
   // Track mount state & cleanup on unmount
   useEffect(() => {
@@ -137,6 +139,7 @@ export default function Scanner() {
     setError("");
     setManualInput("");
     verifyingRef.current = false;
+    // The useEffect will automatically re-launch camera because !result and !error will be true
   };
 
   const handleStartCamera = () => {
@@ -264,45 +267,46 @@ export default function Scanner() {
                         ) : result ? (
                           <div className="text-center w-full px-4">
                             {result.valid ? (
-                              <div className="animate-in zoom-in duration-300">
-                                <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-4" />
-                                <h3 className="text-2xl font-bold text-white mb-2">ENTRY APPROVED</h3>
-                                <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 inline-block">
-                                  <p className="text-white font-semibold uppercase tracking-wider">{result.participantName}</p>
-                                  <p className="text-white/70 text-xs">{result.eventName}</p>
+                              <div className="animate-in zoom-in duration-500">
+                                <CheckCircle2 className="h-24 w-24 text-green-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+                                <h3 className="text-3xl font-black text-white mb-3 tracking-tighter">ENTRY APPROVED</h3>
+                                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 inline-block min-w-[200px]">
+                                  <p className="text-white text-lg font-bold uppercase tracking-widest">{result.participantName}</p>
+                                  <p className="text-white/60 text-xs font-medium uppercase mt-1">{result.eventName}</p>
                                 </div>
                               </div>
                             ) : (
-                              <div className="bg-destructive p-8 rounded-2xl border-4 border-white shadow-[0_0_40px_rgba(239,68,68,0.5)] animate-in pulse duration-500">
-                                <XCircle className="h-20 w-20 text-white mx-auto mb-4" />
-                                <h3 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">ALREADY USED</h3>
-                                <p className="text-white font-medium text-lg leading-tight">
-                                  {result.error}
+                              <div className="bg-red-600 p-10 rounded-3xl border-4 border-white shadow-[0_0_50px_rgba(220,38,38,0.6)] animate-in zoom-in duration-300">
+                                <XCircle className="h-20 w-20 text-white mx-auto mb-6" />
+                                <h3 className="text-3xl font-black text-white mb-3 leading-none tracking-tighter">ALREADY USED</h3>
+                                <p className="text-white/95 text-lg font-bold leading-tight px-2">
+                                  {result.error || "This ticket has already been used."}
                                 </p>
                               </div>
                             )}
                             <Button 
                               size="lg" 
-                              className={`mt-10 px-12 py-6 text-lg font-bold shadow-2xl transition-all active:scale-95 ${
+                              className={`mt-12 px-14 py-7 text-xl font-black shadow-2xl transition-all active:scale-95 rounded-full ${
                                 result.valid 
-                                  ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                  : 'bg-white text-destructive hover:bg-white/90 border-none'
+                                  ? 'bg-green-500 hover:bg-green-600 text-white' 
+                                  : 'bg-white text-red-600 hover:bg-neutral-100'
                               }`}
                               onClick={handleReset}
                             >
-                              Scan Next
+                              SCAN NEXT
                             </Button>
                           </div>
                         ) : error ? (
-                          <div className="bg-destructive/90 p-6 rounded-xl border-2 border-white/20 backdrop-blur-md w-full max-w-[90%] shadow-2xl text-center">
-                            <XCircle className="h-16 w-16 text-white mx-auto mb-4" />
-                            <h2 className="text-xl font-bold text-white mb-2 uppercase">DENIED</h2>
-                            <p className="text-white/90 text-sm font-medium mb-6 leading-tight">{error}</p>
+                          <div className="bg-red-600 p-10 rounded-3xl border-4 border-white shadow-[0_0_50px_rgba(220,38,38,0.6)] animate-in zoom-in duration-300 text-center w-full max-w-[90%]">
+                            <XCircle className="h-20 w-20 text-white mx-auto mb-6" />
+                            <h3 className="text-3xl font-black text-white mb-3 leading-none tracking-tighter uppercase">ACCESS DENIED</h3>
+                            <p className="text-white/95 text-lg font-bold leading-tight px-2 mb-8">{error}</p>
                             <Button 
+                              size="lg"
                               onClick={handleReset}
-                              className="bg-white text-destructive hover:bg-white/90"
+                              className="bg-white text-red-600 hover:bg-neutral-100 font-black px-12 rounded-full shadow-lg"
                             >
-                              Try Again
+                              RETRY
                             </Button>
                           </div>
                         ) : null}
