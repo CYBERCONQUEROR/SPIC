@@ -15,11 +15,16 @@ function buildTransport() {
 
   if (!user || !pass) {
     console.error("[email] SMTP credentials missing!");
+  } else {
+    // Log masked credentials to verify they are loaded on Render
+    console.log(`[email] Transport config: User=${user}, Pass=${pass.substring(0, 4)}****`);
   }
 
-  // Using service: 'gmail' is the most robust way for Gmail accounts
+  // Use direct host/port 465 for better stability on Render
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // Port 465 uses SSL directly
     auth: {
       user: user,
       pass: pass,
@@ -28,10 +33,10 @@ function buildTransport() {
     pool: true,
     maxConnections: 5,
     maxMessages: 100,
-    // Adjust timeouts
-    connectionTimeout: 20000,
-    greetingTimeout: 20000,
-    socketTimeout: 30000,
+    // Realistic timeouts for cloud networks
+    connectionTimeout: 15000, 
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
   });
 }
 
@@ -123,7 +128,7 @@ export async function sendTicketEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const transport = buildTransport();
-    
+
     // Test the connection before attempting to send
     try {
       await transport.verify();
@@ -157,15 +162,23 @@ export async function sendTicketEmail(
 
     return { success: true };
   } catch (err: any) {
-    const isAuthMissing = !process.env.SMTP_USER || !process.env.SMTP_PASS;
-    console.error("[email] CRITICAL FAILURE sending ticket:");
-    console.error("Message:", err.message);
-    console.error("Code:", err.code);
-    console.error("Response:", err.response);
+    console.error("[email] ❌ CRITICAL FAILURE sending ticket:");
+    console.error("   - Message:", err.message);
+    console.error("   - Code:", err.code);
     
-    if (isAuthMissing) {
-      console.error("[email] SMTP_USER or SMTP_PASS is not set in environment!");
+    // Check for common Render/Gmail issues
+    if (err.code === 'EENVELOPE') {
+      console.error("   - Diagnosis: The recipient email address is invalid.");
+    } else if (err.code === 'EAUTH' || err.message.includes('535')) {
+      console.error("   - Diagnosis: Authentication Failed! Verify your Gmail App Password.");
+    } else if (err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED') {
+      console.error("   - Diagnosis: Connection Blocked! Render's server might be restricted from Gmail's port 465.");
     }
+    
+    if (err.response) {
+      console.error("   - Server Response:", err.response);
+    }
+    
     return { success: false, error: err.message };
   }
 }
