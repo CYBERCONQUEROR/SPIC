@@ -38,6 +38,10 @@ export default function Scanner() {
   const verify = async (data: string) => {
     if (verifyingRef.current) return;
     verifyingRef.current = true;
+    
+    // STOP CAMERA IMMEDIATELY TO PREVENT DOUBLE-SCANS
+    await destroyScanner();
+    
     setError("");
     setResult(null);
     setLoading(true);
@@ -45,11 +49,13 @@ export default function Scanner() {
     try {
       const parsed = JSON.parse(data);
       if (!parsed.registrationId || !parsed.eventId || !parsed.verificationToken) {
-        throw new Error("Invalid QR data format.");
+        throw new Error("Invalid QR code. Please scan a valid SPIC ticket.");
       }
+      
       const res = await api.verify(parsed);
       setResult(res);
     } catch (err: any) {
+      // If it's a 409 (already used) from the API, it comes here as an error
       setError(err.message ?? "Verification failed.");
     } finally {
       setLoading(false);
@@ -107,18 +113,16 @@ export default function Scanner() {
 
   // Auto-start camera when conditions are right
   useEffect(() => {
-    // Only launch if authenticated, in camera mode, and NO result/error is being shown
-    if (authenticated && mode === "camera" && !result && !error) {
-      const timer = setTimeout(() => launchCamera(), 350);
+    // Only launch if authenticated, in camera mode, AND no overlay is active
+    if (authenticated && mode === "camera" && !result && !error && !loading) {
+      const timer = setTimeout(() => launchCamera(), 300);
       return () => {
         clearTimeout(timer);
         destroyScanner();
       };
-    } else {
-      // If result or error exists, or not authenticated, tear down the scanner
-      destroyScanner();
     }
-  }, [authenticated, mode, result, error]);
+    // If we have a result, error, or are loading, we explicitly do NOT want the camera running
+  }, [authenticated, mode, result, error, loading]);
 
   // Track mount state & cleanup on unmount
   useEffect(() => {
@@ -256,60 +260,50 @@ export default function Scanner() {
                       className="w-full"
                     />
                     
-                    {/* Overlay for results */}
-                    {(result || error) && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-sm z-10 animate-in fade-in duration-300">
+                    {/* Overlay for results and loading */}
+                    {(loading || result || error) && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/80 backdrop-blur-md z-30 animate-in fade-in duration-300">
                         {loading ? (
-                          <div className="text-white flex flex-col items-center">
-                            <Loader2 className="h-12 w-12 animate-spin mb-4 text-primary" />
-                            <p className="text-lg font-medium">Verifying Ticket...</p>
+                          <div className="text-white flex flex-col items-center animate-pulse">
+                            <Loader2 className="h-16 w-16 animate-spin mb-4 text-primary" />
+                            <p className="text-xl font-bold tracking-tight">VERIFYING...</p>
                           </div>
-                        ) : result ? (
-                          <div className="text-center w-full px-4">
-                            {result.valid ? (
-                              <div className="animate-in zoom-in duration-500">
-                                <CheckCircle2 className="h-24 w-24 text-green-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
-                                <h3 className="text-3xl font-black text-white mb-3 tracking-tighter">ENTRY APPROVED</h3>
-                                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 inline-block min-w-[200px]">
-                                  <p className="text-white text-lg font-bold uppercase tracking-widest">{result.participantName}</p>
-                                  <p className="text-white/60 text-xs font-medium uppercase mt-1">{result.eventName}</p>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-red-600 p-10 rounded-3xl border-4 border-white shadow-[0_0_50px_rgba(220,38,38,0.6)] animate-in zoom-in duration-300">
-                                <XCircle className="h-20 w-20 text-white mx-auto mb-6" />
-                                <h3 className="text-3xl font-black text-white mb-3 leading-none tracking-tighter">ALREADY USED</h3>
-                                <p className="text-white/95 text-lg font-bold leading-tight px-2">
-                                  {result.error || "This ticket has already been used."}
-                                </p>
-                              </div>
-                            )}
+                        ) : result?.valid ? (
+                          <div className="text-center w-full animate-in zoom-in duration-300">
+                            <CheckCircle2 className="h-28 w-28 text-green-500 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]" />
+                            <h3 className="text-3xl font-black text-white mb-4 tracking-tighter">ENTRY APPROVED</h3>
+                            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-5 border border-white/20 inline-block w-full max-w-[280px]">
+                              <p className="text-white text-xl font-bold uppercase tracking-widest truncate">{result.participantName}</p>
+                              <p className="text-white/60 text-xs font-bold uppercase mt-1 tracking-tighter">{result.eventName}</p>
+                            </div>
                             <Button 
                               size="lg" 
-                              className={`mt-12 px-14 py-7 text-xl font-black shadow-2xl transition-all active:scale-95 rounded-full ${
-                                result.valid 
-                                  ? 'bg-green-500 hover:bg-green-600 text-white' 
-                                  : 'bg-white text-red-600 hover:bg-neutral-100'
-                              }`}
+                              className="mt-12 bg-green-500 hover:bg-green-600 text-white px-14 py-8 text-xl font-black rounded-full shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all active:scale-95"
                               onClick={handleReset}
                             >
                               SCAN NEXT
                             </Button>
                           </div>
-                        ) : error ? (
-                          <div className="bg-red-600 p-10 rounded-3xl border-4 border-white shadow-[0_0_50px_rgba(220,38,38,0.6)] animate-in zoom-in duration-300 text-center w-full max-w-[90%]">
-                            <XCircle className="h-20 w-20 text-white mx-auto mb-6" />
-                            <h3 className="text-3xl font-black text-white mb-3 leading-none tracking-tighter uppercase">ACCESS DENIED</h3>
-                            <p className="text-white/95 text-lg font-bold leading-tight px-2 mb-8">{error}</p>
-                            <Button 
-                              size="lg"
-                              onClick={handleReset}
-                              className="bg-white text-red-600 hover:bg-neutral-100 font-black px-12 rounded-full shadow-lg"
-                            >
-                              RETRY
-                            </Button>
-                          </div>
-                        ) : null}
+                        ) : (
+                          <div className="text-center w-full animate-in zoom-in duration-300">
+                            <div className="bg-red-600 p-10 rounded-[2.5rem] border-4 border-white shadow-[0_0_60px_rgba(220,38,38,0.7)] w-full">
+                                  <XCircle className="h-24 w-24 text-white mx-auto mb-6" />
+                                  <h3 className="text-3xl font-black text-white mb-4 leading-none tracking-tighter uppercase">
+                                    {error?.includes("used") || result?.error?.includes("used") ? "ALREADY USED" : "ACCESS DENIED"}
+                                  </h3>
+                                  <p className="text-white/95 text-lg font-bold leading-tight line-clamp-3">
+                                    {error || result?.error || "Verification failed."}
+                                  </p>
+                                </div>
+                                <Button 
+                                  size="lg" 
+                                  className="mt-12 bg-white text-red-600 hover:bg-neutral-100 px-14 py-8 text-xl font-black rounded-full shadow-2xl transition-all active:scale-95"
+                                  onClick={handleReset}
+                                >
+                                  TRY AGAIN
+                                </Button>
+                              </div>
+                            )}
                       </div>
                     )}
 
