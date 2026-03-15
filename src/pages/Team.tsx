@@ -3,7 +3,7 @@ import AnimatedSection from "@/components/AnimatedSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { facultyAdvisor, coreLeadership, departmentHeads, teamMembers } from "@/data/team";
-import { Linkedin, Mail, User } from "lucide-react";
+import { User } from "lucide-react";
 import type { TeamMember } from "@/data/team";
 import { motion } from "framer-motion";
 
@@ -34,9 +34,8 @@ const MemberCard = ({
           className="mx-auto mb-4 inline-flex w-fit items-center justify-center rounded-full border border-border/70 bg-background/80 shadow-sm"
         >
           <div
-            className={`flex items-center justify-center rounded-full ${
-              size === "lg" ? "h-20 w-20" : size === "md" ? "h-16 w-16" : "h-12 w-12"
-            }`}
+            className={`flex items-center justify-center rounded-full ${size === "lg" ? "h-20 w-20" : size === "md" ? "h-16 w-16" : "h-12 w-12"
+              }`}
           >
             {member.image ? (
               <img
@@ -62,20 +61,6 @@ const MemberCard = ({
             <p className="text-[11px] text-primary mt-1 opacity-90">{member.department}</p>
           )}
         </div>
-        {member.linkedinUrl && (
-          <div className="mt-3 flex items-center justify-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <a
-              href={member.linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${member.name} LinkedIn`}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-background/60 text-muted-foreground hover:border-primary/70 hover:text-primary transition-colors duration-200"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Linkedin className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        )}
       </CardContent>
     </Card>
   </motion.div>
@@ -109,11 +94,11 @@ const Team = () => {
       <div className="container mx-auto px-4 py-14 sm:py-20 space-y-16">
         {/* Faculty */}
         <section className="max-w-xs mx-auto">
-          <AnimatedSection className="text-center mb-5">
-            <h2 className="font-display text-base sm:text-lg font-semibold text-foreground tracking-tight">
+          <AnimatedSection className="text-center mb-6">
+            <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
               Faculty Coordinator
             </h2>
-            <div className="mx-auto mt-3 h-px w-20 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="mx-auto mt-3 h-px w-24 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </AnimatedSection>
           <AnimatedSection>
             <MemberCard member={facultyAdvisor} size="lg" onClick={() => handleOpenMember(facultyAdvisor)} />
@@ -161,7 +146,7 @@ const Team = () => {
               Team Members
             </h2>
             <div className="mx-auto mt-3 h-px w-24 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-            <p className="text-sm text-muted-foreground mt-3">A growing community of builders, creators, and doers.</p>
+            <p className="text-sm text-muted-foreground mt-3"></p>
           </AnimatedSection>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {teamMembers.map((m, i) => (
@@ -217,19 +202,6 @@ const Team = () => {
                 <p className="mt-1 text-sm text-muted-foreground text-center max-w-md">{activeMember.bio}</p>
               )}
 
-              <div className="mt-3 flex items-center justify-center gap-3">
-                {activeMember.linkedinUrl && (
-                  <a
-                    href={activeMember.linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${activeMember.name} LinkedIn`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/80 text-muted-foreground hover:border-primary hover:text-primary transition-colors duration-200"
-                  >
-                    <Linkedin className="h-4 w-4" />
-                  </a>
-                )}
-              </div>
             </div>
           )}
         </DialogContent>

@@ -9,10 +9,14 @@ const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground font-display font-bold text-[10px]">
-                SP
-              </div>
-              <span className="font-display text-base font-bold">SPIC</span>
+              <img
+                src="Gemini_Generated_Image_c51bomc51bomc51b-removebg-preview.png"
+                alt="SPIC Logo"
+                className="h-8 w-8 rounded-full object-cover border border-border/70 shadow-sm"
+              />
+              <span className="font-display text-base font-semibold tracking-tight text-foreground">
+                SPIC
+              </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Society of Promotion of Innovation and Creativity — A Student Society of the EII Department, RKGIT.
@@ -25,15 +29,15 @@ const Footer = () => {
             <h4 className="font-display text-sm font-semibold mb-4 text-foreground">Connect</h4>
             <div className="flex gap-2.5 mb-4">
               {[
-                { icon: Instagram, label: "Instagram", url: "#" },
-                { icon: Linkedin, label: "LinkedIn", url: "#" },
-                { icon: Youtube, label: "YouTube", url: "#" },
-                { icon: Mail, label: "Email", url: "mailto:spic@rkgit.edu.in" },
-              ].map(({ icon: Icon, label, url }) => (
-                <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary/50 transition-all duration-200">
+                { icon: Instagram, label: "Instagram" },
+                { icon: Linkedin, label: "LinkedIn" },
+                { icon: Youtube, label: "YouTube" },
+                { icon: Mail, label: "Email" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} aria-label={label}
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground cursor-default transition-all duration-200">
                   <Icon className="h-4 w-4" />
-                </a>
+                </div>
               ))}
             </div>
             <p className="text-sm text-muted-foreground">spic@rkgit.edu.in</p>
