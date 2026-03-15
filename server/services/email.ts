@@ -15,29 +15,35 @@ function buildTransport() {
 
   if (!user || !pass) {
     console.error("[email] SMTP credentials missing!");
-  } else {
-    // Log masked credentials to verify they are loaded on Render
-    console.log(`[email] Transport config: User=${user}, Pass=${pass.substring(0, 4)}****`);
   }
 
-  // Use direct host/port 465 for better stability on Render
-  return nodemailer.createTransport({
+  // Common fix for Render: Force IPv4 and use Port 587
+  // Many cloud providers block IPv6 SMTP or Port 465
+  const smtpConfig: any = {
     host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Port 465 uses SSL directly
+    port: 587,
+    secure: false, // Port 587 uses STARTTLS
     auth: {
       user: user,
       pass: pass,
     },
-    // Adding pool for better performance in concurrent requests
+    // Force IPv4 to avoid ENETUNREACH or timeouts on IPv6
+    family: 4,
+    // Increase timeouts significantly for cloud environments
+    connectionTimeout: 60000, 
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
+    // Add pool for better performance
     pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-    // Realistic timeouts for cloud networks
-    connectionTimeout: 15000, 
-    greetingTimeout: 15000,
-    socketTimeout: 20000,
-  });
+    maxConnections: 3,
+    tls: {
+      // Do not fail on invalid certs
+      rejectUnauthorized: false,
+      minVersion: "TLSv1.2"
+    }
+  };
+
+  return nodemailer.createTransport(smtpConfig);
 }
 
 function buildHtml(data: TicketEmailData): string {
