@@ -39,7 +39,7 @@ export async function appendAttendanceRow(data: {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: "Sheet1!A:G",
+      range: "Sheet1!A:I",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -51,7 +51,8 @@ export async function appendAttendanceRow(data: {
             data.year ?? "",
             data.eventName,
             data.eventDate,
-            // Removed eventVenue and timestamp as per requirement
+            "Present",
+            new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
           ],
         ],
       },

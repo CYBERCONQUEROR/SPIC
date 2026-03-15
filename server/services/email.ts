@@ -10,7 +10,6 @@ export interface TicketEmailData {
 }
 
 function buildTransport() {
-  const host = process.env.SMTP_HOST ?? "smtp.gmail.com";
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 
@@ -18,39 +17,26 @@ function buildTransport() {
     console.error("[email] SMTP credentials missing!");
   }
 
-  const isGmail = host.includes("gmail.com");
-
-  // If using Gmail, use the 'service' property which is more reliable on Render
-  if (isGmail) {
-    return nodemailer.createTransport({
-      service: "gmail",
-      auth: { user, pass },
-      logger: true,
-      debug: true,
-      pool: true, // Reuse connections
-      // Increase timeouts for cloud stability
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 30000,
-      tls: {
-        rejectUnauthorized: false, // Prevents certificate issues in cloud
-      }
-    });
-  }
-
-  // Generic SMTP config
-  return nodemailer.createTransport({
-    host,
-    port: Number(process.env.SMTP_PORT ?? 587),
-    secure: process.env.SMTP_SECURE === "true",
+  // Force port 587 and IPv4 for Render compatibility
+  const smtpConfig: any = {
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // Use STARTTLS
     auth: { user, pass },
     logger: true,
     debug: true,
+    // Explicitly force IPv4 to avoid ENETUNREACH in cloud environments
+    family: 4,
+    connectionTimeout: 40000, // 40s timeout
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
     tls: {
       rejectUnauthorized: false,
       minVersion: "TLSv1.2",
     },
-  });
+  };
+
+  return nodemailer.createTransport(smtpConfig);
 }
 
 function buildHtml(data: TicketEmailData): string {
