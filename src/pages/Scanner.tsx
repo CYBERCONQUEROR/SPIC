@@ -264,24 +264,30 @@ export default function Scanner() {
                         ) : result ? (
                           <div className="text-center w-full px-4">
                             {result.valid ? (
-                              <>
+                              <div className="animate-in zoom-in duration-300">
                                 <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-4" />
-                                <h3 className="text-2xl font-bold text-white mb-2">APPROVED</h3>
-                                <p className="text-white/90 text-sm mb-1 uppercase tracking-wider">{result.participantName}</p>
-                                <p className="text-white/70 text-xs">{result.eventName}</p>
-                              </>
+                                <h3 className="text-2xl font-bold text-white mb-2">ENTRY APPROVED</h3>
+                                <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 inline-block">
+                                  <p className="text-white font-semibold uppercase tracking-wider">{result.participantName}</p>
+                                  <p className="text-white/70 text-xs">{result.eventName}</p>
+                                </div>
+                              </div>
                             ) : (
-                              <div className="bg-destructive/90 p-6 rounded-xl border-2 border-white/20 backdrop-blur-md w-full shadow-2xl">
-                                <XCircle className="h-16 w-16 text-white mx-auto mb-4" />
-                                <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-tighter">ALREADY USED</h3>
-                                <p className="text-white/90 text-sm font-medium">
+                              <div className="bg-destructive p-8 rounded-2xl border-4 border-white shadow-[0_0_40px_rgba(239,68,68,0.5)] animate-in pulse duration-500">
+                                <XCircle className="h-20 w-20 text-white mx-auto mb-4" />
+                                <h3 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">ALREADY USED</h3>
+                                <p className="text-white font-medium text-lg leading-tight">
                                   {result.error}
                                 </p>
                               </div>
                             )}
                             <Button 
                               size="lg" 
-                              className={`mt-8 px-10 shadow-lg ${result.valid ? 'bg-green-600 hover:bg-green-700' : 'bg-white text-destructive hover:bg-white/90'}`}
+                              className={`mt-10 px-12 py-6 text-lg font-bold shadow-2xl transition-all active:scale-95 ${
+                                result.valid 
+                                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                  : 'bg-white text-destructive hover:bg-white/90 border-none'
+                              }`}
                               onClick={handleReset}
                             >
                               Scan Next

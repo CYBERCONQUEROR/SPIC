@@ -56,10 +56,10 @@ export async function appendAttendanceRow(data: {
 
     if (rowIndex === -1) {
       console.warn(`[sheets] Roll number ${rollNumberToMatch} not found in sheet. Falling back to append.`);
-      // Fallback: If not found, append to the end using same structure as registration
+      // Fallback: If not found, append to the end as a new row
       await sheets.spreadsheets.values.append({
         spreadsheetId: sheetId,
-        range: "Sheet1!A:G",
+        range: "Sheet1!A:F",
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [[
@@ -68,23 +68,22 @@ export async function appendAttendanceRow(data: {
             data.year ?? "", 
             rollNumberToMatch, 
             data.phone ?? "", 
-            "Present", 
-            new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+            "Present"
           ]],
         },
       });
       return { success: true };
     }
 
-    // 2. Update Column F (Present) and G (Time) for that specific row
-    const updateRange = `Sheet1!F${rowIndex + 1}:G${rowIndex + 1}`;
+    // 2. Update Column F (Present) for that specific row
+    const updateRange = `Sheet1!F${rowIndex + 1}:F${rowIndex + 1}`;
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
       range: updateRange,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
-          ["Present", new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })],
+          ["Present"],
         ],
       },
     });
@@ -124,7 +123,7 @@ export async function appendRegistrationRow(data: {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: "Sheet1!A:G",
+      range: "Sheet1!A:F",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -135,7 +134,6 @@ export async function appendRegistrationRow(data: {
             data.rollNumber ? data.rollNumber.toString().trim() : "",
             data.phone ?? "",
             "Absent", // Column F: Attendance
-            "",       // Column G: Time
           ],
         ],
       },
