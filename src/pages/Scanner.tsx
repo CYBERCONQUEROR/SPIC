@@ -242,92 +242,79 @@ export default function Scanner() {
             </div>
           )}
 
-          {/* Camera scanner */}
-          {!result && mode === "camera" && (
+          {/* Main Scanner Container */}
+          {mode === "camera" && (
             <AnimatedSection>
-              <Card>
-                <CardContent className="p-5 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Camera className="h-5 w-5 text-primary" />
-                    <h2 className="font-display font-semibold">
-                      Point camera at QR code
-                    </h2>
-                  </div>
-
-                  <div className="relative w-full rounded-md overflow-hidden bg-muted min-h-[300px]">
+              <Card className="overflow-hidden border-none shadow-2xl">
+                <CardContent className="p-0 space-y-0">
+                  <div className="relative w-full overflow-hidden bg-black aspect-square max-h-[500px]">
                     <div
                       id={SCANNER_ELEMENT_ID}
-                      className="w-full"
+                      className="w-full h-full"
                     />
                     
                     {/* Overlay for results and loading */}
                     {(loading || result || error) && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/80 backdrop-blur-md z-30 animate-in fade-in duration-300">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/85 backdrop-blur-md z-30 animate-in fade-in duration-300">
                         {loading ? (
                           <div className="text-white flex flex-col items-center animate-pulse">
                             <Loader2 className="h-16 w-16 animate-spin mb-4 text-primary" />
-                            <p className="text-xl font-bold tracking-tight">VERIFYING...</p>
+                            <p className="text-xl font-bold tracking-tight uppercase">Verifying...</p>
                           </div>
                         ) : result?.valid ? (
-                          <div className="text-center w-full animate-in zoom-in duration-300">
+                          <div className="text-center w-full animate-in zoom-in duration-500">
                             <CheckCircle2 className="h-28 w-28 text-green-500 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]" />
                             <h3 className="text-3xl font-black text-white mb-4 tracking-tighter">ENTRY APPROVED</h3>
-                            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-5 border border-white/20 inline-block w-full max-w-[280px]">
+                            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-5 border border-white/20 inline-block w-full max-w-[320px]">
                               <p className="text-white text-xl font-bold uppercase tracking-widest truncate">{result.participantName}</p>
                               <p className="text-white/60 text-xs font-bold uppercase mt-1 tracking-tighter">{result.eventName}</p>
                             </div>
                             <Button 
                               size="lg" 
-                              className="mt-12 bg-green-500 hover:bg-green-600 text-white px-14 py-8 text-xl font-black rounded-full shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all active:scale-95"
+                              className="mt-12 bg-green-500 hover:bg-green-600 text-white px-14 py-8 text-xl font-black rounded-full shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all active:scale-95 w-full"
                               onClick={handleReset}
                             >
                               SCAN NEXT
                             </Button>
                           </div>
                         ) : (
-                          <div className="text-center w-full animate-in zoom-in duration-300">
-                            <div className="bg-red-600 p-10 rounded-[2.5rem] border-4 border-white shadow-[0_0_60px_rgba(220,38,38,0.7)] w-full">
-                                  <XCircle className="h-24 w-24 text-white mx-auto mb-6" />
-                                  <h3 className="text-3xl font-black text-white mb-4 leading-none tracking-tighter uppercase">
-                                    {error?.includes("used") || result?.error?.includes("used") ? "ALREADY USED" : "ACCESS DENIED"}
-                                  </h3>
-                                  <p className="text-white/95 text-lg font-bold leading-tight line-clamp-3">
-                                    {error || result?.error || "Verification failed."}
-                                  </p>
-                                </div>
-                                <Button 
-                                  size="lg" 
-                                  className="mt-12 bg-white text-red-600 hover:bg-neutral-100 px-14 py-8 text-xl font-black rounded-full shadow-2xl transition-all active:scale-95"
-                                  onClick={handleReset}
-                                >
-                                  TRY AGAIN
-                                </Button>
-                              </div>
-                            )}
+                          <div className="text-center w-full animate-in zoom-in duration-300 px-2">
+                            <div className="bg-red-600 p-8 rounded-[2.5rem] border-4 border-white shadow-[0_0_60px_rgba(220,38,38,0.7)] w-full">
+                              <XCircle className="h-20 w-20 text-white mx-auto mb-6" />
+                              <h3 className="text-3xl font-black text-white mb-4 leading-none tracking-tighter uppercase whitespace-nowrap">
+                                {error?.includes("used") || result?.error?.includes("used") ? "ALREADY USED" : "ACCESS DENIED"}
+                              </h3>
+                              <p className="text-white/95 text-lg font-bold leading-tight line-clamp-3">
+                                {error || result?.error || "Verification failed."}
+                              </p>
+                            </div>
+                            <Button 
+                              size="lg" 
+                              className="mt-10 bg-white text-red-600 hover:bg-neutral-100 px-14 py-8 text-xl font-black rounded-full shadow-2xl transition-all active:scale-95 w-full"
+                              onClick={handleReset}
+                            >
+                              TRY AGAIN
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    {/* Scanning indicator */}
+                    {/* Scanning indicator (only when scanning) */}
                     {!result && !error && scanning && !loading && (
-                      <div className="absolute inset-0 pointer-events-none border-2 border-primary/30 rounded-md">
-                        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-primary/60 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-scan" style={{ animation: 'scan 2s linear infinite' }} />
+                      <div className="absolute inset-0 pointer-events-none border-[3px] border-primary/40 rounded-sm">
+                        <div className="absolute top-1/2 left-0 right-0 h-1 bg-primary/70 shadow-[0_0_20px_rgba(59,130,246,0.9)] animate-scan" style={{ animation: 'scan 2.5s ease-in-out infinite' }} />
+                        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5" />
                       </div>
                     )}
                   </div>
 
                   <style>{`
                     @keyframes scan {
-                      0%, 100% { top: 10%; }
-                      50% { top: 90%; }
+                      0%, 100% { top: 15%; opacity: 0.5; }
+                      50% { top: 85%; opacity: 1; }
                     }
                   `}</style>
-
-                  {!loading && !result && !error && (
-                    <p className="text-xs text-muted-foreground text-center">
-                      Position the QR ticket inside the scanner frame. It will be
-                      verified automatically.
-                    </p>
-                  )}
                 </CardContent>
               </Card>
             </AnimatedSection>
