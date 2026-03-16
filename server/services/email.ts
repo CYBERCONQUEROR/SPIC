@@ -11,33 +11,33 @@ export interface TicketEmailData {
 
 function buildTransport() {
   const user = process.env.SMTP_USER?.trim();
-  // App passwords from Google often have spaces like "abcd efgh ijkl mnop"
-  // We MUST remove these spaces for the SMTP server to accept it
   const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
 
   if (!user || !pass) {
     console.error("[email] SMTP credentials missing!");
   }
 
-  // DIRECT SSL Connection (Port 465) is usually the best bet for Render
+  // ENETUNREACH on IPv6 is common on Render. 
+  // We'll use Port 587 with STARTTLS as it's often more stable on Render than 465.
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Use SSL
+    port: 587,
+    secure: false, // Port 587 uses STARTTLS
     auth: {
       user: user,
       pass: pass,
     },
-    // We disable 'pool' because Render's load balancers often kill idle connections
-    pool: false,
-    // Force IPv4 to bypass Render's IPv6 networking issues
+    // Force IPv4 is CRITICAL for Render to avoid ENETUNREACH
     family: 4,
-    connectionTimeout: 20000, 
+    // Increase connection timeout for cloud environment
+    connectionTimeout: 30000, // 30s
     greetingTimeout: 20000,
-    socketTimeout: 30000,
+    socketTimeout: 45000,
+    pool: false,
     tls: {
-      // Allow self-signed certs (common requirement in cloud proxies)
-      rejectUnauthorized: false
+      // Do not fail on invalid certs
+      rejectUnauthorized: false,
+      minVersion: "TLSv1.2"
     }
   } as any);
 }

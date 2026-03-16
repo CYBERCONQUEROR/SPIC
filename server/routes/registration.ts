@@ -101,7 +101,10 @@ router.post("/", async (req: Request, res: Response) => {
     qrDataUrl,
   }).then(({ success, error }) => {
     const status = success ? "sent" : "failed";
-    db.collection(REGISTRATIONS).doc(id).update({ emailStatus: status });
+    // Use set merge:true to be safer than update() to avoid crashes if doc is mid-creation
+    db.collection(REGISTRATIONS).doc(id).set({ emailStatus: status }, { merge: true })
+      .catch(dbErr => console.error(`[register] Firestore update failed for ${id}:`, dbErr.message));
+
     if (!success) {
       console.error(`[register] Email failed for ${id}:`, error);
     }
