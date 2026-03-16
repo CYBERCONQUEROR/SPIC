@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
 
 export interface TicketEmailData {
   to: string;
@@ -17,27 +18,26 @@ function buildTransport() {
     console.error("[email] SMTP credentials missing!");
   }
 
-  // ENETUNREACH on IPv6 is common on Render. 
-  // We'll use Port 587 with STARTTLS as it's often more stable on Render than 465.
+  // FORCE IPv4 strictly using a custom lookup function. 
+  // This is the only way to GUARANTEE Node.js stays on IPv4 on Render.
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Port 587 uses STARTTLS
+    port: 465,
+    secure: true, // Port 465 is direct SSL
     auth: {
       user: user,
       pass: pass,
     },
-    // Force IPv4 is CRITICAL for Render to avoid ENETUNREACH
-    family: 4,
-    // Increase connection timeout for cloud environment
-    connectionTimeout: 30000, // 30s
+    // Custom lookup to explicitly filter out IPv6 addresses
+    lookup: (hostname: string, options: any, callback: any) => {
+      dns.lookup(hostname, { family: 4 }, callback);
+    },
+    connectionTimeout: 30000,
     greetingTimeout: 20000,
     socketTimeout: 45000,
     pool: false,
     tls: {
-      // Do not fail on invalid certs
-      rejectUnauthorized: false,
-      minVersion: "TLSv1.2"
+      rejectUnauthorized: false
     }
   } as any);
 }
@@ -173,8 +173,8 @@ export async function sendTicketEmail(
       console.error("   - Diagnosis: The recipient email address is invalid.");
     } else if (err.code === 'EAUTH' || err.message.includes('535')) {
       console.error("   - Diagnosis: Authentication Failed! Verify your Gmail App Password.");
-    } else if (err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED') {
-      console.error("   - Diagnosis: Connection Blocked! Render's server might be restricted from Gmail's port 465.");
+    } else if (err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED' || err.code === 'ESOCKET') {
+      console.error("   - Diagnosis: Connection Blocked! Render's server might be restricted from Gmail's SMTP ports (465/587).");
     }
     
     if (err.response) {
