@@ -10,40 +10,36 @@ export interface TicketEmailData {
 }
 
 function buildTransport() {
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const user = process.env.SMTP_USER?.trim();
+  // App passwords from Google often have spaces like "abcd efgh ijkl mnop"
+  // We MUST remove these spaces for the SMTP server to accept it
+  const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
 
   if (!user || !pass) {
     console.error("[email] SMTP credentials missing!");
   }
 
-  // Common fix for Render: Force IPv4 and use Port 587
-  // Many cloud providers block IPv6 SMTP or Port 465
-  const smtpConfig: any = {
+  // DIRECT SSL Connection (Port 465) is usually the best bet for Render
+  return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Port 587 uses STARTTLS
+    port: 465,
+    secure: true, // Use SSL
     auth: {
       user: user,
       pass: pass,
     },
-    // Force IPv4 to avoid ENETUNREACH or timeouts on IPv6
+    // We disable 'pool' because Render's load balancers often kill idle connections
+    pool: false,
+    // Force IPv4 to bypass Render's IPv6 networking issues
     family: 4,
-    // Increase timeouts significantly for cloud environments
-    connectionTimeout: 60000, 
-    greetingTimeout: 30000,
-    socketTimeout: 60000,
-    // Add pool for better performance
-    pool: true,
-    maxConnections: 3,
+    connectionTimeout: 20000, 
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
     tls: {
-      // Do not fail on invalid certs
-      rejectUnauthorized: false,
-      minVersion: "TLSv1.2"
+      // Allow self-signed certs (common requirement in cloud proxies)
+      rejectUnauthorized: false
     }
-  };
-
-  return nodemailer.createTransport(smtpConfig);
+  } as any);
 }
 
 function buildHtml(data: TicketEmailData): string {
