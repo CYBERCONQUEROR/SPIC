@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "spic",
+  "compatibility_date": "2025-09-27",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "not_found_handling": "single-page-application"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "env": {
+    "production": {
+      "vars": {
+        "SMTP_HOST": "smtp.gmail.com",
+        "SMTP_PORT": "465",
+        "SMTP_SECURE": "false",
+        "SMTP_USER": "57ds2324@rkgit.edu.in",
+        "SMTP_PASS": "aflguwctnbbvrwio",
+        "API_PORT": "3001",
+        "GOOGLE_SHEET_ID": "1QleXFs5eWtJ29JsuN_fsVsYwz-Qxtp-jC1F_la4RoEQ",
+        "VITE_FIREBASE_API_KEY": "AIzaSyBnW18PrSAqo4RgK7BS8qp3E3Fl0520VSA",
+        "VITE_FIREBASE_AUTH_DOMAIN": "spic-19d60.firebaseapp.com",
+        "VITE_FIREBASE_PROJECT_ID": "spic-19d60",
+        "VITE_FIREBASE_STORAGE_BUCKET": "spic-19d60.firebasestorage.app",
+        "VITE_FIREBASE_MESSAGING_SENDER_ID": "249118420619",
+        "VITE_FIREBASE_APP_ID": "1:249118420619:web:3a0e322991fb221dceae8e"
+      }
+    }
+  }
+}
