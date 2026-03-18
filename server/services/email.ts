@@ -13,16 +13,17 @@ export interface TicketEmailData {
 function buildTransport() {
   const user = process.env.SMTP_USER?.trim();
   const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
-  const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
-  const port = parseInt(process.env.SMTP_PORT || "465");
-  // For Gmail, port 465 is direct SSL (secure: true), 587 is STARTTLS (secure: false)
-  const secure = process.env.SMTP_SECURE === "true" || port === 465;
+  const host = "smtp.gmail.com";
+  
+  // We'll default to 587 as it's more likely to work on Render
+  const port = 587;
+  const secure = false;
 
   if (!user || !pass) {
     console.error("[email] SMTP credentials missing!");
   }
 
-  console.log(`[email] Creating transport: ${host}:${port} (secure: ${secure})`);
+  console.log(`[email] Attempting transport on IPv4: ${host}:${port}`);
 
   return nodemailer.createTransport({
     host: host,
@@ -32,22 +33,15 @@ function buildTransport() {
       user: user,
       pass: pass,
     },
-    // Force IPv4 to avoid ENETUNREACH issues on Render
+    // Force IPv4 lookup
     lookup: (hostname: string, options: any, callback: any) => {
-      dns.lookup(hostname, { family: 4 }, (err, address, family) => {
-        if (!err) {
-          console.log(`[email] DNS: ${hostname} -> ${address} (IPv${family})`);
-        } else {
-          console.error(`[email] DNS lookup failed for ${hostname}:`, err.message);
-        }
-        callback(err, address, family);
-      });
+      dns.lookup(hostname, { family: 4 }, callback);
     },
-    connectionTimeout: 10000, // Reduced for faster failover
-    greetingTimeout: 10000,
-    socketTimeout: 20000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 30000,
     tls: {
-      rejectUnauthorized: false, // Compatibility with some environments
+      rejectUnauthorized: false,
       minVersion: 'TLSv1.2'
     }
   } as any);
