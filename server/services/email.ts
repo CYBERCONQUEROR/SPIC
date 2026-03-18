@@ -13,31 +13,42 @@ export interface TicketEmailData {
 function buildTransport() {
   const user = process.env.SMTP_USER?.trim();
   const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
+  const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
+  const port = parseInt(process.env.SMTP_PORT || "465");
+  // For Gmail, port 465 is direct SSL (secure: true), 587 is STARTTLS (secure: false)
+  const secure = process.env.SMTP_SECURE === "true" || port === 465;
 
   if (!user || !pass) {
     console.error("[email] SMTP credentials missing!");
   }
 
-  // FORCE IPv4 strictly using a custom lookup function. 
-  // This is the only way to GUARANTEE Node.js stays on IPv4 on Render.
+  console.log(`[email] Creating transport: ${host}:${port} (secure: ${secure})`);
+
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Port 465 is direct SSL
+    host: host,
+    port: port,
+    secure: secure,
     auth: {
       user: user,
       pass: pass,
     },
-    // Custom lookup to explicitly filter out IPv6 addresses
+    // Force IPv4 to avoid ENETUNREACH issues on Render
     lookup: (hostname: string, options: any, callback: any) => {
-      dns.lookup(hostname, { family: 4 }, callback);
+      dns.lookup(hostname, { family: 4 }, (err, address, family) => {
+        if (!err) {
+          console.log(`[email] DNS: ${hostname} -> ${address} (IPv${family})`);
+        } else {
+          console.error(`[email] DNS lookup failed for ${hostname}:`, err.message);
+        }
+        callback(err, address, family);
+      });
     },
-    connectionTimeout: 30000,
-    greetingTimeout: 20000,
-    socketTimeout: 45000,
-    pool: false,
+    connectionTimeout: 10000, // Reduced for faster failover
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: false, // Compatibility with some environments
+      minVersion: 'TLSv1.2'
     }
   } as any);
 }
