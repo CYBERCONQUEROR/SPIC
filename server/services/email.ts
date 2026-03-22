@@ -10,42 +10,46 @@ export interface TicketEmailData {
   qrDataUrl: string; // base64 data-URL
 }
 
+/**
+ * Build the Gmail SMTP transporter with BYPASS for Render's IPv6 issues
+ */
 function buildTransport() {
+  const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
   const user = process.env.SMTP_USER?.trim();
   const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
-  
-  // Hardcode Gmail's primary IPv4 for smtp.gmail.com to BYPASS Render's broken IPv6
-  // Current IP for smtp.gmail.com as of March 2026 (Common stable range)
-  const host = "142.251.4.108"; 
-  const port = 587;
-  const secure = false;
+  const port = parseInt(process.env.SMTP_PORT || "465");
+  const secure = process.env.SMTP_SECURE === "true";
 
   if (!user || !pass) {
-    console.error("[email] SMTP credentials missing!");
+    console.error("[email] Gmail credentials missing in .env!");
   }
 
-  console.log(`[email] 🚀 BYPASS MODE: Connecting directly to IPv4 ${host}:${port}`);
-
+  // Force IPv4 lookup for Gmail to bypass Render's broken IPv6 stack
+  // This is a more robust alternative to hardcoding a single IP.
   return nodemailer.createTransport({
-    host: host,
-    port: port,
-    secure: secure,
+    host,
+    port,
+    secure,
     auth: {
-      user: user,
-      pass: pass,
+      user,
+      pass,
     },
-    // Prevent any further DNS resolution attempts
-    lookup: (_hostname: string, _options: any, callback: any) => {
-      callback(null, host, 4);
+    // CRITICAL: Force the transporter to use IPv4
+    lookup: (hostname: string, _options: any, callback: any) => {
+      dns.lookup(hostname, { family: 4 }, (err, address) => {
+        if (err) {
+          console.error(`[email] DNS lookup failed for ${hostname}:`, err);
+        }
+        callback(err, address, 4);
+      });
     },
-    connectionTimeout: 20000,
-    greetingTimeout: 20000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
     socketTimeout: 30000,
     tls: {
-      // CRITICAL: We MUST provide the servername for the SSL certificate to be valid
+      // Required for some cloud environments to avoid handshake failures
       servername: "smtp.gmail.com",
-      rejectUnauthorized: false, // Standard for cloud workarounds
-      minVersion: 'TLSv1.2'
+      rejectUnauthorized: false
     }
   } as any);
 }
@@ -90,7 +94,7 @@ function buildHtml(data: TicketEmailData): string {
                 <p style="margin:0 0 8px;font-size:13px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">Date</p>
                 <p style="margin:0 0 16px;font-size:15px;color:#18181b;">${formattedDate}</p>
                 <p style="margin:0 0 8px;font-size:13px;color:#71717a;text-transform:uppercase;letter-spacing:0.05em;">Venue</p>
-                <p style="margin:0;font-size:15px;color:#18181b;">${escapeHtml(data.eventVenue)}</p>
+                <p style="margin:0;font-size:15px;color:#18181b;">Seminar Hall , D Block</p>
               </td></tr>
             </table>
 
@@ -139,22 +143,10 @@ export async function sendTicketEmail(
   try {
     const transport = buildTransport();
 
-    // Test the connection before attempting to send
-    try {
-      await transport.verify();
-      console.log("[email] SMTP connection verified successfully");
-    } catch (verifyErr: any) {
-      console.error("[email] SMTP Verification failed:", verifyErr.message);
-      // Continue anyway, but we've logged the issue
-    }
+    console.log(`[email] Attempting to send Gmail to ${data.to} via SSL Port 465 (IPv4 Bypass Mode)...`);
 
-    // Log info for debugging in Render (password masked)
-    console.log(`[email] Attempting to send email to ${data.to} via ${process.env.SMTP_HOST ?? "smtp.gmail.com"} as ${process.env.SMTP_USER || "MISSING_USER"}`);
-
-    // Extract raw base64 from data-URL for CID attachment
-    // Ensure we handle potential whitespace or encoding issues
+    // Extract raw base64 from data-URL
     const base64 = data.qrDataUrl.split(',')[1] || data.qrDataUrl;
-    console.log(`[email] QR base64 extracted, length: ${base64.length} chars`);
 
     await transport.sendMail({
       from: `"SPIC Events" <${process.env.SMTP_USER}>`,
@@ -170,25 +162,16 @@ export async function sendTicketEmail(
       ],
     });
 
+    console.log(`[email] ✅ Gmail sent successfully to ${data.to}`);
     return { success: true };
   } catch (err: any) {
-    console.error("[email] ❌ CRITICAL FAILURE sending ticket:");
+    console.error("[email] ❌ GMAIL FAILURE sending ticket:");
     console.error("   - Message:", err.message);
-    console.error("   - Code:", err.code);
-    
-    // Check for common Render/Gmail issues
-    if (err.code === 'EENVELOPE') {
-      console.error("   - Diagnosis: The recipient email address is invalid.");
-    } else if (err.code === 'EAUTH' || err.message.includes('535')) {
-      console.error("   - Diagnosis: Authentication Failed! Verify your Gmail App Password.");
-    } else if (err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED' || err.code === 'ESOCKET') {
-      console.error("   - Diagnosis: Connection Blocked! Render's server might be restricted from Gmail's SMTP ports (465/587).");
+    if (err.code === 'EAUTH') {
+      console.error("   - Diagnosis: Authentication factor. Check App Password.");
+    } else if (err.code === 'ETIMEDOUT') {
+      console.error("   - Diagnosis: Connection timed out. It might be blocked by cloud provider ports.");
     }
-    
-    if (err.response) {
-      console.error("   - Server Response:", err.response);
-    }
-    
     return { success: false, error: err.message };
   }
 }
