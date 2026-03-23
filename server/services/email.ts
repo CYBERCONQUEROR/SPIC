@@ -1,3 +1,5 @@
+import nodemailer from "nodemailer";
+
 export interface TicketEmailData {
   to: string;
   participantName: string;
@@ -5,6 +7,40 @@ export interface TicketEmailData {
   eventDate: string;
   eventVenue: string;
   qrDataUrl: string; // base64 data-URL
+}
+
+/**
+ * Build the Gmail SMTP transporter with BYPASS for Render's IPv6 issues
+ */
+function buildTransport() {
+  // CRITICAL: We hardcode a known stable IPv4 address for smtp.gmail.com 
+  // to completely bypass Render's broken IPv6/DNS stack that causes ENETUNREACH.
+  const host = "142.251.4.108"; 
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
+  const port = 465; // SSL
+
+  if (!user || !pass) {
+    console.error("[email] Gmail credentials missing in .env!");
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: true, // Port 465 is always secure
+    auth: {
+      user,
+      pass,
+    },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
+    tls: {
+      // Required for SSL validation since we're connecting via IP
+      servername: "smtp.gmail.com",
+      rejectUnauthorized: false
+    }
+  } as any);
 }
 
 function buildHtml(data: TicketEmailData): string {
@@ -90,65 +126,35 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/**
- * Send ticket email via Brevo (Sendinblue) HTTP API
- * This bypasses cloud provider SMTP port blocks (25, 465, 587)
- */
 export async function sendTicketEmail(
   data: TicketEmailData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const apiKey = process.env.BREVO_API_KEY;
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || "57ds2324@rkgit.edu.in";
-    const senderName = process.env.BREVO_SENDER_NAME || "SPIC Events";
+    const transport = buildTransport();
 
-    if (!apiKey) {
-      throw new Error("BREVO_API_KEY is missing in environment variables.");
-    }
+    console.log(`[email] Reverting to Gmail: Sending to ${data.to} via IPv4 Bypass Mode...`);
 
-    console.log(`[email] Sending ticket via Brevo API (HTTP) to ${data.to}...`);
-
-    // Extract raw base64 from data-URL for attachment
+    // Extract raw base64 from data-URL
     const base64 = data.qrDataUrl.split(',')[1] || data.qrDataUrl;
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "accept": "application/json",
-        "api-key": apiKey,
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({
-        sender: {
-          name: senderName,
-          email: senderEmail
+    await transport.sendMail({
+      from: `"SPIC Events" <${process.env.SMTP_USER}>`,
+      to: data.to,
+      subject: `Event Registration Confirmation – Your QR Ticket for ${data.eventName}`,
+      html: buildHtml(data),
+      attachments: [
+        {
+          filename: "qr-ticket.png",
+          content: Buffer.from(base64, "base64"),
+          cid: "qr-ticket",
         },
-        to: [{
-          email: data.to,
-          name: data.participantName
-        }],
-        subject: `Event Registration Confirmation – Your QR Ticket for ${data.eventName}`,
-        htmlContent: buildHtml(data),
-        attachments: [
-          {
-            content: base64,
-            name: "qr-ticket.png"
-          }
-        ]
-      })
+      ],
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Brevo API error: ${response.statusText}`);
-    }
-
-    const resData = await response.json();
-    console.log(`[email] ✅ Email sent successfully via Brevo. Message ID: ${resData.messageId}`);
-    
+    console.log(`[email] ✅ Gmail sent successfully to ${data.to}`);
     return { success: true };
   } catch (err: any) {
-    console.error("[email] ❌ BREVO FAILURE sending ticket:", err.message);
+    console.error("[email] ❌ GMAIL FAILURE sending ticket:", err.message);
     return { success: false, error: err.message };
   }
 }
