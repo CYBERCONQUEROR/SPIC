@@ -14,40 +14,30 @@ export interface TicketEmailData {
  * Build the Gmail SMTP transporter with BYPASS for Render's IPv6 issues
  */
 function buildTransport() {
-  const host = process.env.SMTP_HOST?.trim() || "smtp.gmail.com";
+  // CRITICAL: We hardcode a known stable IPv4 address for smtp.gmail.com 
+  // to completely bypass Render's broken IPv6/DNS stack that causes ENETUNREACH.
+  const host = "142.251.4.108"; 
   const user = process.env.SMTP_USER?.trim();
   const pass = process.env.SMTP_PASS?.replace(/\s/g, "");
-  const port = parseInt(process.env.SMTP_PORT || "465");
-  const secure = process.env.SMTP_SECURE === "true";
+  const port = 465; // SSL
 
   if (!user || !pass) {
     console.error("[email] Gmail credentials missing in .env!");
   }
 
-  // Force IPv4 lookup for Gmail to bypass Render's broken IPv6 stack
-  // This is a more robust alternative to hardcoding a single IP.
   return nodemailer.createTransport({
     host,
     port,
-    secure,
+    secure: true, // Port 465 is always secure
     auth: {
       user,
       pass,
     },
-    // CRITICAL: Force the transporter to use IPv4
-    lookup: (hostname: string, _options: any, callback: any) => {
-      dns.lookup(hostname, { family: 4 }, (err, address) => {
-        if (err) {
-          console.error(`[email] DNS lookup failed for ${hostname}:`, err);
-        }
-        callback(err, address, 4);
-      });
-    },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
     socketTimeout: 30000,
     tls: {
-      // Required for some cloud environments to avoid handshake failures
+      // Required for SSL validation since we're connecting via IP
       servername: "smtp.gmail.com",
       rejectUnauthorized: false
     }
