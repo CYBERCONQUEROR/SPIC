@@ -1,3 +1,10 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
 # Logs
 logs
 *.log
@@ -7,25 +14,40 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Environment variables
+.env
+.env*.local
 *.local
 
-# Server data
-data/*.db
-.env
+# Server secrets
 server/firebase-service-account.json
+data/*.db
+
+# Firebase
+.firebase/
+.firebaserc
+
+# Cloudflare
+.wrangler/
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Vercel / Netlify
 .vercel
-.env*.local
+.netlify
+
+# Misc
+*.tsbuildinfo

@@ -19,7 +19,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Society of Promotion of Innovation and Creativity — A Student Society of the EII Department, RKGIT.
+              Society for Promotion of Innovation and Creativity — A Student Society of the EII Department, RKGIT.
             </p>
             <p className="text-sm font-medium text-primary mt-3">Innovate. Create. Inspire.</p>
           </div>

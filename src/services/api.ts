@@ -1,4 +1,6 @@
-const BASE = "/api";
+const BASE = import.meta.env.DEV
+  ? "/api"                                    // Vite dev proxy → localhost:3001
+  : "https://spic-rkgit.onrender.com/api";    // Production → Render backend
 
 export interface RegistrationPayload {
   eventId: string;
