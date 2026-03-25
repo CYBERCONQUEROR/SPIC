@@ -85,7 +85,7 @@ const Index = () => {
             <div className="inline-block rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-8 py-4 shadow-lg shadow-primary/20 backdrop-blur-sm mb-8 mt-4 sm:mt-10">
               <span className="inline-flex items-center gap-3">
                 <span className="text-lg sm:text-xl font-bold text-primary uppercase tracking-wider">
-                  Entrepreneurship Cell RKGIT
+                  CHUT
                 </span>
               </span>
             </div>
