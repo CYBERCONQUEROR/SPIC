@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import registrationRouter from "./routes/registration.js";
 import verificationRouter from "./routes/verification.js";
+import contactRouter from "./routes/contact.js";
 
 // Render sets the PORT env var for web services
 const PORT = Number(process.env.PORT || process.env.API_PORT || 3001);
@@ -20,6 +21,7 @@ app.use(express.json({ limit: "2mb" }));
 // ─── API routes ──────────────────────────────────────────────────────
 app.use("/api/registrations", registrationRouter);
 app.use("/api/verify", verificationRouter);
+app.use("/api/contact", contactRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {

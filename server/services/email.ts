@@ -12,6 +12,12 @@ export interface TicketEmailData {
   verificationToken: string;
 }
 
+export interface ContactEmailData {
+  name: string;
+  email: string;
+  concern: string;
+}
+
 /**
  * Escape HTML special characters
  */
@@ -161,5 +167,38 @@ export async function sendTicketEmail(
     const errorMsg = err.message || "Unknown error";
     console.error("[email] ❌ BREVO SDK FAILURE:", errorMsg);
     return { success: false, error: errorMsg };
+  }
+}
+
+export async function sendContactEmail(
+  data: ContactEmailData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const apiKey = process.env.BREVO_SMTP_KEY || "";
+    if (!apiKey) throw new Error("BREVO_SMTP_KEY is missing in .env");
+
+    const client = new BrevoClient({ apiKey });
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || "talukdarkrishnav9@gmail.com";
+    const officialEmail = "spic@rkgit.edu.in";
+
+    await client.transactionalEmails.sendTransacEmail({
+      subject: `New Website Inquiry from ${data.name}`,
+      htmlContent: `
+        <h3>New Website Inquiry</h3>
+        <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
+        <p><strong>Concern:</strong></p>
+        <p>${escapeHtml(data.concern).replace(/\n/g, "<br>")}</p>
+      `,
+      sender: { name: "SPIC Website", email: senderEmail },
+      to: [{ email: officialEmail, name: "SPIC Team" }],
+      replyTo: { email: data.email, name: data.name }
+    });
+
+    console.log(`[contact] Email sent safely for ${data.email}`);
+    return { success: true };
+  } catch (err: any) {
+    console.error("[contact] FAILURE:", err.message);
+    return { success: false, error: err.message };
   }
 }

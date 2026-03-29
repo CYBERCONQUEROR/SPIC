@@ -247,7 +247,7 @@ export default function Scanner() {
             <AnimatedSection>
               <Card className="overflow-hidden border-none shadow-2xl">
                 <CardContent className="p-0 space-y-0">
-                  <div className="relative w-full overflow-hidden bg-black aspect-square max-h-[500px]">
+                  <div className="relative w-full overflow-hidden bg-black h-[350px] sm:h-[500px] sm:aspect-square">
                     <div
                       id={SCANNER_ELEMENT_ID}
                       className="w-full h-full"
@@ -262,35 +262,35 @@ export default function Scanner() {
                             <p className="text-xl font-bold tracking-tight uppercase">Verifying...</p>
                           </div>
                         ) : result?.valid ? (
-                          <div className="text-center w-full animate-in zoom-in duration-500 px-2">
-                            <CheckCircle2 className="h-20 w-20 sm:h-28 sm:w-28 text-green-500 mx-auto mb-4 sm:mb-6 drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]" />
-                            <h3 className="text-2xl sm:text-3xl font-black text-white mb-3 sm:mb-4 tracking-tighter">ENTRY APPROVED</h3>
-                            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 sm:p-5 border border-white/20 inline-block w-full max-w-[280px] sm:max-w-[320px]">
-                              <p className="text-white text-lg sm:text-xl font-bold uppercase tracking-widest truncate">{result.participantName}</p>
-                              <p className="text-white/60 text-[10px] sm:text-xs font-bold uppercase mt-1 tracking-tighter">{result.eventName}</p>
+                          <div className="text-center w-full animate-in zoom-in duration-500 px-2 flex flex-col items-center justify-center h-full">
+                            <CheckCircle2 className="h-16 w-16 sm:h-28 sm:w-28 text-green-500 mx-auto mb-3 sm:mb-6 drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]" />
+                            <h3 className="text-xl sm:text-3xl font-black text-white mb-2 sm:mb-4 tracking-tighter">ENTRY APPROVED</h3>
+                            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-5 border border-white/20 inline-block w-full max-w-[220px] sm:max-w-[320px]">
+                              <p className="text-white text-base sm:text-xl font-bold uppercase tracking-widest truncate">{result.participantName}</p>
+                              <p className="text-white/60 text-[9px] sm:text-xs font-bold uppercase mt-1 tracking-tighter">{result.eventName}</p>
                             </div>
                             <Button 
                               size="lg" 
-                              className="mt-8 sm:mt-12 bg-green-500 hover:bg-green-600 text-white px-8 sm:px-14 py-6 sm:py-8 text-lg sm:text-xl font-black rounded-full shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all active:scale-95 w-full max-w-[280px] sm:max-w-none"
+                              className="mt-6 sm:mt-12 bg-green-500 hover:bg-green-600 text-white px-6 sm:px-14 py-4 sm:py-8 text-base sm:text-xl font-black rounded-full shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all active:scale-95 w-full max-w-[220px] sm:max-w-none"
                               onClick={handleReset}
                             >
                               SCAN NEXT
                             </Button>
                           </div>
                         ) : (
-                          <div className="text-center w-full animate-in zoom-in duration-300 px-2">
-                            <div className="bg-red-600 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border-4 border-white shadow-[0_0_60px_rgba(220,38,38,0.7)] w-full max-w-[320px] mx-auto">
-                              <XCircle className="h-16 w-16 sm:h-20 sm:w-20 text-white mx-auto mb-4 sm:mb-6" />
-                              <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 sm:mb-4 leading-none tracking-tighter uppercase">
+                          <div className="text-center w-full animate-in zoom-in duration-300 px-2 flex flex-col items-center justify-center h-full">
+                            <div className="bg-red-600 p-4 sm:p-8 rounded-[1.2rem] sm:rounded-[2.5rem] border-2 sm:border-4 border-white shadow-[0_0_60px_rgba(220,38,38,0.7)] w-full max-w-[240px] sm:max-w-[320px] mx-auto">
+                              <XCircle className="h-12 w-12 sm:h-20 sm:w-20 text-white mx-auto mb-3 sm:mb-6" />
+                              <h3 className="text-xl sm:text-3xl font-black text-white mb-1 sm:mb-4 leading-none tracking-tighter uppercase">
                                 {error?.includes("used") || result?.error?.includes("used") ? "ALREADY USED" : "ACCESS DENIED"}
                               </h3>
-                              <p className="text-white/95 text-base sm:text-lg font-bold leading-tight line-clamp-3">
+                              <p className="text-white/95 text-sm sm:text-lg font-bold leading-tight line-clamp-2">
                                 {error || result?.error || "Verification failed."}
                               </p>
                             </div>
                             <Button 
                               size="lg" 
-                              className="mt-8 sm:mt-10 bg-white text-red-600 hover:bg-neutral-100 px-8 sm:px-14 py-6 sm:py-8 text-lg sm:text-xl font-black rounded-full shadow-2xl transition-all active:scale-95 w-full max-w-[280px] sm:max-w-none"
+                              className="mt-6 sm:mt-10 bg-white text-red-600 hover:bg-neutral-100 px-6 sm:px-14 py-4 sm:py-8 text-base sm:text-xl font-black rounded-full shadow-2xl transition-all active:scale-95 w-full max-w-[220px] sm:max-w-none"
                               onClick={handleReset}
                             >
                               TRY AGAIN
