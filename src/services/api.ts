@@ -87,4 +87,11 @@ export const api = {
       body: JSON.stringify(payload),
     });
   },
+
+  contact(payload: { name: string; email: string; concern: string }) {
+    return request<{ message: string }>("/contact", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
 };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Instagram, Linkedin, Youtube, Mail, Loader2 } from "lucide-react";
+import { api } from "@/services/api";
 import {
   Dialog,
   DialogContent,
@@ -24,21 +25,12 @@ const Footer = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Message sent! We'll get back to you soon.");
-        setOpen(false);
-        setFormData({ name: "", email: "", concern: "" });
-      } else {
-        toast.error(data.error || "Failed to send message.");
-      }
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      const data = await api.contact(formData);
+      toast.success(data.message || "Message sent! We'll get back to you soon.");
+      setOpen(false);
+      setFormData({ name: "", email: "", concern: "" });
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +53,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              The Entrepreneur Cell of RKGIT — Promoting innovation and creativity since 2012.
+              The Entrepreneur Cell of RKGIT — Promoting innovation and creativity since 2022.
             </p>
             <p className="text-sm font-medium text-primary mt-3">Innovate. Create. Inspire.</p>
           </div>
@@ -70,9 +62,9 @@ const Footer = () => {
           <div className="sm:justify-self-end">
             <h4 className="font-display text-sm font-semibold mb-4 text-foreground">Connect</h4>
             <div className="flex gap-2.5 mb-4">
-              <a 
-                href="https://www.instagram.com/spic_rkgit?igsh=MWowamxuMTd6aWh6Zg==" 
-                target="_blank" 
+              <a
+                href="https://www.instagram.com/spic_rkgit?igsh=MWowamxuMTd6aWh6Zg=="
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
               >
@@ -84,7 +76,7 @@ const Footer = () => {
               <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground cursor-not-allowed transition-all duration-200">
                 <Youtube className="h-4 w-4" />
               </div>
-              
+
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <button className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200">
@@ -102,28 +94,28 @@ const Footer = () => {
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
                         <Label htmlFor="name">Full Name</Label>
-                        <Input 
-                          id="name" 
-                          required 
+                        <Input
+                          id="name"
+                          required
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input 
-                          id="email" 
-                          type="email" 
-                          required 
+                        <Input
+                          id="email"
+                          type="email"
+                          required
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="concern">Your Concern</Label>
-                        <Textarea 
-                          id="concern" 
-                          required 
+                        <Textarea
+                          id="concern"
+                          required
                           className="min-h-[100px]"
                           value={formData.concern}
                           onChange={(e) => setFormData({ ...formData, concern: e.target.value })}
