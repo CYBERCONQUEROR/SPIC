@@ -98,7 +98,9 @@ router.post("/", async (req: Request, res: Response) => {
     eventName,
     eventDate,
     eventVenue,
-    qrDataUrl,
+    registrationId: id,
+    eventId,
+    verificationToken,
   }).then(({ success, error }) => {
     const status = success ? "sent" : "failed";
     // Use set merge:true to be safer than update() to avoid crashes if doc is mid-creation
@@ -184,7 +186,9 @@ router.post("/:id/resend", async (req: Request, res: Response) => {
     eventName: row.eventName,
     eventDate: row.eventDate,
     eventVenue: row.eventVenue,
-    qrDataUrl: row.qrDataUrl,
+    registrationId: doc.id,
+    eventId: row.eventId,
+    verificationToken: row.verificationToken,
   });
 
   const status = result.success ? "sent" : "failed";
