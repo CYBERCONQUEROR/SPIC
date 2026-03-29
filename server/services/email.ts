@@ -150,14 +150,14 @@ export async function sendTicketEmail(
 
     const client = new BrevoClient({ apiKey });
 
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || "talukdarkrishnav9@gmail.com";
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || "spic@rkgit.edu.in";
 
     console.log(`[email] Sending via Brevo v5 SDK to ${data.to}...`);
 
     await client.transactionalEmails.sendTransacEmail({
       subject: `Event Registration Confirmation – Your QR Ticket for ${data.eventName}`,
       htmlContent: buildHtml(data),
-      sender: { name: "SPIC Events", email: senderEmail },
+      sender: { name: "SPIC Event", email: senderEmail },
       to: [{ email: data.to, name: data.participantName }],
     });
 
@@ -178,7 +178,7 @@ export async function sendContactEmail(
     if (!apiKey) throw new Error("BREVO_SMTP_KEY is missing in .env");
 
     const client = new BrevoClient({ apiKey });
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || "talukdarkrishnav9@gmail.com";
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || "spic@rkgit.edu.in";
     const officialEmail = "spic@rkgit.edu.in";
 
     await client.transactionalEmails.sendTransacEmail({
