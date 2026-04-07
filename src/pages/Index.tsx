@@ -19,7 +19,7 @@ import {
   Network,
 } from "lucide-react";
 
-const targetDate = new Date("2026-03-11T09:00:00").getTime();
+const targetDate = new Date("2026-04-25T09:00:00").getTime();
 
 function useCountdown() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -140,7 +140,7 @@ const Index = () => {
             <p className="text-xs font-semibold tracking-widest uppercase text-accent mb-2">Next Big Event</p>
             <h2 className="font-display text-2xl sm:text-3xl font-bold mb-2">Ideation 2.0</h2>
             <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-10">
-              <Calendar className="h-3.5 w-3.5" /> 11 March 2026
+              <Calendar className="h-3.5 w-3.5" /> 25 & 27 April 2026
               <span className="mx-1 text-border">&bull;</span>
               <MapPin className="h-3.5 w-3.5" /> CRC
             </div>

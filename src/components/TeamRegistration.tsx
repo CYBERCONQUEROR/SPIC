@@ -23,7 +23,7 @@ const BRANCH_OPTIONS = [
 
 // Provide default values to field arrays up to 4 members
 const memberSchema = z.object({
-  name: z.string().min(2, "Name is required"),
+  name: z.string().min(1, "Name is required"),
   email: z.string().email("Enter a valid email"),
   rollNumber: z.string().min(1, "Roll number required"),
   year: z.string().min(1, "Select year"),
@@ -31,9 +31,48 @@ const memberSchema = z.object({
   phone: z.string().regex(/^[0-9]{10}$/, "10-digit phone number required"),
 });
 
+// For partial teams, we'll allow empty members except the leader
+const optionalMemberSchema = memberSchema.partial().extend({
+  // But if any field is filled, all must be filled (handled in refine or naturally)
+  // For now let's just make them fully optional and filter empty ones on submit
+});
+
 const schema = z.object({
   teamName: z.string().min(2, "Team Name must be at least 2 characters"),
-  members: z.array(memberSchema).length(4, "Exactly 4 members are required"),
+  members: z.tuple([
+    memberSchema, // Leader is required
+    memberSchema.partial(), // Others are optional
+    memberSchema.partial(),
+    memberSchema.partial(),
+  ]),
+}).superRefine((data, ctx) => {
+  const emails = new Set<string>();
+  const phones = new Set<string>();
+
+  data.members.forEach((m, i) => {
+    const member = m as Partial<z.infer<typeof memberSchema>>;
+    if (member.email && member.phone) {
+      const email = member.email.toLowerCase().trim();
+      const phone = member.phone.trim();
+
+      if (emails.has(email)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate email found within team",
+          path: ["members", i, "email"]
+        });
+      }
+      if (phones.has(phone)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate phone number found within team",
+          path: ["members", i, "phone"]
+        });
+      }
+      emails.add(email);
+      phones.add(phone);
+    }
+  });
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -78,23 +117,36 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
     name: "members"
   });
 
-  const handleNext = async (currentStep: typeof step) => {
+  const handleBack = () => {
+    setError("");
+    if (step === "members") {
+      if (activeMember > 0) {
+        setActiveMember((m) => m - 1);
+      } else {
+        setStep("team");
+      }
+    } else if (step === "upload") {
+      setStep("members");
+    }
+  };
+
+  const handleNext = async () => {
     setError("");
     let isValid = false;
 
-    if (currentStep === "team") {
+    if (step === "team") {
       isValid = await trigger("teamName");
       if (isValid) setStep("members");
-    } else if (currentStep === "members") {
-      // Validate only current active member first
+    } else if (step === "members") {
+      // If we are on a member, validate it ONLY IF IT HAD CONTENT, 
+      // or if it's the leader (who IS required).
+      const isLeader = activeMember === 0;
       isValid = await trigger(`members.${activeMember}` as any);
       
-      if (isValid) {
+      if (isValid || (!isLeader)) {
           if (activeMember < 3) {
-              // Proceed to next member
               setActiveMember(p => p + 1);
           } else {
-              // On the last member, move to upload step
               setStep("upload");
           }
       }
@@ -145,7 +197,8 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
         eventDate: event.date,
         eventVenue: event.venue,
         teamName: values.teamName,
-        members: values.members as any,
+        // Filter out empty members before submitting
+        members: values.members.filter(m => m.email && m.name) as any,
         pptLink
       });
 
@@ -191,13 +244,13 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-xl max-h-[95vh] overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
         {step !== "success" && (
-            <DialogHeader>
-            <DialogTitle className="font-display">
+            <DialogHeader className="mb-2">
+            <DialogTitle className="font-display text-xl sm:text-2xl">
                 Register for {event.name}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
                 Build your team of 4 and submit your idea.
             </DialogDescription>
             </DialogHeader>
@@ -205,7 +258,10 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
 
         {/* Progress Indicator */}
         {step !== "success" && (
-            <div className="flex items-center justify-between mb-6 px-2 mt-2">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 px-1 sm:px-2 mt-1 sm:mt-2 relative">
+                {/* Connector Lines */}
+                <div className="absolute top-4 left-0 right-0 h-0.5 bg-muted -z-10 mx-10 sm:mx-14" />
+                
                 {["Team Info", "Members", "Upload"].map((label, i) => {
                     const stepNames = ["team", "members", "upload"];
                     const currentIdx = stepNames.indexOf(step);
@@ -214,14 +270,14 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
                     
                     return (
                         <div key={label} className="flex flex-col items-center flex-1">
-                            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                                isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" : 
-                                isPast ? "bg-primary/20 text-primary border border-primary/50" : 
-                                "bg-muted text-muted-foreground"
+                            <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all relative z-10 ${
+                                isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-110" : 
+                                isPast ? "bg-primary text-primary-foreground shadow-inner" : 
+                                "bg-muted text-muted-foreground border-2 border-background"
                             }`}>
                                 {isPast ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
                             </div>
-                            <span className={`text-[10px] mt-1.5 font-medium uppercase tracking-wider ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                            <span className={`text-[9px] sm:text-[10px] mt-1.5 font-bold uppercase tracking-tighter sm:tracking-wider ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                                 {label}
                             </span>
                         </div>
@@ -290,19 +346,19 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
             {step === "members" && (
                 <div className="animate-in slide-in-from-right-4 duration-300">
                     {/* Member Tabs */}
-                    <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
                         {fields.map((_, index) => (
                             <button
                                 key={index}
                                 type="button"
                                 onClick={() => setActiveMember(index)}
-                                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                                className={`px-3 py-2 rounded-lg text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all border ${
                                     activeMember === index 
-                                    ? "bg-primary text-primary-foreground shadow-md" 
-                                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                    ? "bg-primary/10 text-primary border-primary shadow-sm" 
+                                    : "bg-muted/50 text-muted-foreground border-transparent hover:bg-muted"
                                 }`}
                             >
-                                Member {index + 1} {index === 0 ? "(Lead)" : ""}
+                                Member {index + 1} {index === 0 ? "★" : ""}
                             </button>
                         ))}
                     </div>
@@ -441,35 +497,33 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8 pt-4 border-t border-border/50">
-                {step === "team" ? (
-                    <div /> // Placeholder for space-between
-                ) : (
+            <div className="flex gap-3 mt-6 pt-4 border-t border-border/50">
+                {step !== "team" && (
                     <Button 
                         type="button" 
-                        variant="outline" 
-                        onClick={() => {
-                            setError("");
-                            if (step === "members") {
-                                if (activeMember > 0) {
-                                    setActiveMember(m => m - 1);
-                                } else {
-                                    setStep("team");
-                                }
-                            } else if (step === "upload") {
-                                setStep("members");
-                            }
-                        }}
+                        variant="ghost" 
+                        className="flex-1 sm:flex-none h-11"
+                        onClick={handleBack}
                     >
-                        <ChevronLeft className="h-4 w-4 mr-1" /> Back
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Back
                     </Button>
                 )}
-
-                {step === "upload" ? (
+                
+                {step !== "upload" ? (
+                    <Button 
+                        type="button" 
+                        className={`font-semibold h-11 shadow-lg shadow-primary/20 transition-all active:scale-95 ${step === "team" ? "w-full" : "flex-1 min-w-[100px] sm:min-w-[120px]"}`}
+                        onClick={handleNext}
+                    >
+                        Next
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                ) : (
                     <Button
                         type="submit"
                         disabled={isSubmitting || !pptFile}
-                        className="min-w-[140px]"
+                        className="flex-1 h-11 font-bold shadow-lg shadow-primary/25"
                     >
                         {isSubmitting ? (
                         <>
@@ -479,16 +533,8 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
                                 : "Registering…"}
                         </>
                         ) : (
-                            "Register & Get QR Ticket"
+                            "Register"
                         )}
-                    </Button>
-                ) : (
-                    <Button 
-                        type="button"
-                        onClick={() => handleNext(step)}
-                        className="min-w-[120px]"
-                    >
-                        Next <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                 )}
             </div>

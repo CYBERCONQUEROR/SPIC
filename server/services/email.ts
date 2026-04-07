@@ -33,12 +33,15 @@ function escapeHtml(str: string): string {
  * Build the HTML content for the ticket email (BharatSetu Style)
  */
 function buildHtml(data: TicketEmailData): string {
-  const formattedDate = new Date(data.eventDate).toLocaleDateString("en-IN", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const rawDate = new Date(data.eventDate);
+  const formattedDate = isNaN(rawDate.getTime()) 
+    ? data.eventDate 
+    : rawDate.toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 
   const escapedName = escapeHtml(data.participantName);
   const escapedEvent = escapeHtml(data.eventName);
@@ -181,12 +184,15 @@ export interface TeamTicketEmailData {
 }
 
 function buildTeamHtml(data: TeamTicketEmailData, memberIndex: number): string {
-  const formattedDate = new Date(data.eventDate).toLocaleDateString("en-IN", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const rawDate = new Date(data.eventDate);
+  const formattedDate = isNaN(rawDate.getTime()) 
+    ? data.eventDate 
+    : rawDate.toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 
   const escapedTeamName = escapeHtml(data.teamName);
   const escapedEvent = escapeHtml(data.eventName);
@@ -203,10 +209,6 @@ function buildTeamHtml(data: TeamTicketEmailData, memberIndex: number): string {
 
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qrContent)}`;
   const logoUrl = "https://spic-rkgit.onrender.com/Gemini_Generated_Image_c51bomc51bomc51b-removebg-preview.png";
-
-  const memberListHtml = data.members.map((mem, i) => `
-    <li><strong>Member ${i + 1}:</strong> ${escapeHtml(mem.name)} (${escapeHtml(mem.email)}) - ${escapeHtml(mem.branch)} ${escapeHtml(mem.year)}</li>
-  `).join("");
 
   return `
 <!DOCTYPE html>
@@ -264,12 +266,10 @@ function buildTeamHtml(data: TeamTicketEmailData, memberIndex: number): string {
                 </tr>
               </table>
 
-              <!-- Team details -->
+              <!-- Member Greeting -->
               <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
-                <h3 style="margin: 0 0 12px; font-size: 16px; color: #1e293b;">Team Members</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.8;">
-                   ${memberListHtml}
-                </ul>
+                <p style="margin: 0; font-size: 16px; color: #1e293b; text-align: center;">Team: <strong>${escapedTeamName}</strong></p>
+                <p style="margin: 8px 0 0; font-size: 14px; color: #475569; text-align: center;">This is your personal entry pass for the team registration.</p>
               </div>
 
               <!-- QR Code Section -->

@@ -30,11 +30,18 @@ const EventCard = ({
       <div className="flex items-start justify-between gap-3 mb-3">
         <h3 className="font-display font-semibold text-base">{event.name}</h3>
         <Badge variant="outline" className={`text-[10px] capitalize shrink-0 ${statusColors[event.status] ?? ""}`}>
-          {event.status === "open" ? "Open" : event.status === "closed" ? "Closed" : "Ended"}
+          {event.status === "open" ? "Open" : event.status === "closed" ? "Coming Soon" : "Ended"}
         </Badge>
       </div>
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{new Date(event.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+        {event.status !== "closed" && (
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            {isNaN(new Date(event.date).getTime()) 
+              ? event.date 
+              : new Date(event.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+          </span>
+        )}
         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{event.venue}</span>
         {event.attendees && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{event.attendees}+</span>}
         {event.speakers && <span className="flex items-center gap-1"><Mic className="h-3 w-3" />{event.speakers} speakers</span>}
@@ -47,9 +54,9 @@ const EventCard = ({
       ) : event.status === "ended" ? (
         <EventGallery eventId={event.id} eventName={event.name} imageList={event.imageList} />
       ) : (
-        <Button size="sm" variant="ghost" disabled className="text-muted-foreground">
+        <div className="inline-flex items-center justify-center rounded-md text-sm font-bold h-9 px-4 py-2 bg-primary/10 text-primary border border-primary/20 shadow-sm">
           Coming Soon
-        </Button>
+        </div>
       )}
     </CardContent>
   </Card>
