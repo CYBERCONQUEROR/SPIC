@@ -6,7 +6,7 @@ dist
 dist-ssr
 
 
-firebase deploy --hosting only 
+firebase deploy --only hosting
 npm run build
 
 # Logs
