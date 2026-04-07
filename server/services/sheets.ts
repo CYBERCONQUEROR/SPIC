@@ -55,28 +55,12 @@ export async function appendAttendanceRow(data: {
     const rowIndex = rows.findIndex(row => row[0]?.toString().trim() === rollNumberToMatch);
 
     if (rowIndex === -1) {
-      console.warn(`[sheets] Roll number ${rollNumberToMatch} not found in sheet. Falling back to append.`);
-      // Fallback: If not found, append to the end as a new row
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: sheetId,
-        range: "Sheet1!A:F",
-        valueInputOption: "USER_ENTERED",
-        requestBody: {
-          values: [[
-            data.participantName, 
-            "", // Branch unknown in fallback
-            data.year ?? "", 
-            rollNumberToMatch, 
-            data.phone ?? "", 
-            "Present"
-          ]],
-        },
-      });
-      return { success: true };
+      console.warn(`[sheets] Roll number ${rollNumberToMatch} not found in sheet.`);
+      return { success: false, error: "Row not found in Sheet." };
     }
 
-    // 2. Update Column F (Present) for that specific row
-    const updateRange = `Sheet1!F${rowIndex + 1}:F${rowIndex + 1}`;
+    // 2. Update Column H (Present) for that specific row
+    const updateRange = `Sheet1!H${rowIndex + 1}:H${rowIndex + 1}`;
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
       range: updateRange,
@@ -123,7 +107,7 @@ export async function appendRegistrationRow(data: {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: "Sheet1!A:F",
+      range: "Sheet1!A:H",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -133,7 +117,9 @@ export async function appendRegistrationRow(data: {
             data.year ?? "",
             data.rollNumber ? data.rollNumber.toString().trim() : "",
             data.phone ?? "",
-            "Absent", // Column F: Attendance
+            "", // Column F: TeamName
+            "", // Column G: PPT Link
+            "Absent", // Column H: Attendance
           ],
         ],
       },
@@ -145,3 +131,64 @@ export async function appendRegistrationRow(data: {
     return { success: false, error: err.message };
   }
 }
+
+/**
+ * Append a Team registration row to the Google Sheet.
+ * Columns: Team Name | Member 1 Name | Member 1 Email | Member 1 Roll | Member 1 Year | Member 1 Branch | Member 1 Phone | ... Member 2 ... Member 3 ... Member 4 ... | PPT Link | Attendance (Absent) | Timestamp
+ */
+export async function appendTeamRegistrationRow(data: {
+  teamName: string;
+  members: any[];
+  pptLink: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const sheetId = process.env.GOOGLE_SHEET_ID?.trim();
+
+  if (!sheetId) {
+    console.warn("[sheets] GOOGLE_SHEET_ID not set or empty.");
+    return { success: false, error: "GOOGLE_SHEET_ID not configured." };
+  }
+
+  try {
+    const rowsToAppend = data.members.map((member, index) => {
+      if (index === 0) {
+        return [
+          member.name || "",
+          member.branch || "",
+          member.year || "",
+          member.rollNumber || "",
+          member.phone || "",
+          data.teamName || "",
+          data.pptLink || "",
+          "Absent"
+        ];
+      } else {
+        return [
+          member.name || "",
+          member.branch || "",
+          member.year || "",
+          member.rollNumber || "",
+          member.phone || "",
+          "", // blank team name
+          "", // blank ppt link
+          "Absent" // Attendance
+        ];
+      }
+    });
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: "Sheet1!A:H",
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: rowsToAppend,
+      },
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("[sheets] Failed to append team registration:", err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+

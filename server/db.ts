@@ -36,3 +36,4 @@ export function getDb(): Firestore {
 }
 
 export const REGISTRATIONS = "registrations";
+export const TEAM_REGISTRATIONS = "team_registrations";

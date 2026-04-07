@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { upcomingEvents, pastEvents, type Event } from "@/data/events";
 import { Calendar, MapPin, Users, Mic } from "lucide-react";
 import EventRegistration from "@/components/EventRegistration";
+import TeamRegistration from "@/components/TeamRegistration";
 import EventGallery from "@/components/EventGallery";
 
 type Filter = "all" | "upcoming" | "past";
@@ -117,13 +118,23 @@ const Events = () => {
 
       {/* Registration Dialog */}
       {registerEvent && (
-        <EventRegistration
-          event={registerEvent}
-          open={!!registerEvent}
-          onOpenChange={(open) => {
-            if (!open) setRegisterEvent(null);
-          }}
-        />
+        registerEvent.id === "ideation-2" ? (
+          <TeamRegistration
+            event={registerEvent}
+            open={!!registerEvent}
+            onOpenChange={(open) => {
+              if (!open) setRegisterEvent(null);
+            }}
+          />
+        ) : (
+          <EventRegistration
+            event={registerEvent}
+            open={!!registerEvent}
+            onOpenChange={(open) => {
+              if (!open) setRegisterEvent(null);
+            }}
+          />
+        )
       )}
     </main>
   );

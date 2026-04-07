@@ -5,6 +5,10 @@ node_modules
 dist
 dist-ssr
 
+
+firebase deploy --hosting only 
+npm run build
+
 # Logs
 logs
 *.log

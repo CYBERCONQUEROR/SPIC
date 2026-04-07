@@ -43,6 +43,32 @@ export interface VerifyResult {
   error?: string;
 }
 
+export interface TeamMember {
+  name: string;
+  email: string;
+  rollNumber: string;
+  year: string;
+  branch: string;
+  phone: string;
+}
+
+export interface TeamRegistrationPayload {
+  eventId: string;
+  eventName: string;
+  eventDate: string;
+  eventVenue: string;
+  teamName: string;
+  members: TeamMember[];
+  pptLink: string;
+}
+
+export interface TeamRegistrationResponse {
+  id: string;
+  teamName: string;
+  qrDataUrl: string;
+  message: string;
+}
+
 async function request<T>(
   url: string,
   options?: RequestInit
@@ -59,6 +85,13 @@ async function request<T>(
 export const api = {
   register(payload: RegistrationPayload) {
     return request<Registration>("/registrations", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  registerTeam(payload: TeamRegistrationPayload) {
+    return request<TeamRegistrationResponse>("/registrations/team", {
       method: "POST",
       body: JSON.stringify(payload),
     });

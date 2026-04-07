@@ -201,4 +201,131 @@ router.post("/:id/resend", async (req: Request, res: Response) => {
   }
 });
 
+// ─── Register a team ──────────────────────────────────────────────────
+router.post("/team", async (req: Request, res: Response) => {
+  const { eventId, eventName, eventDate, eventVenue, teamName, members, pptLink } = req.body;
+
+  if (!eventId || !eventName || !teamName || !members || members.length !== 4 || !pptLink) {
+    res.status(400).json({ error: "Missing required fields. Team registrations require 4 members and a PPT link." });
+    return;
+  }
+
+  const db = getDb();
+  
+  // Check for duplicate team name
+  const duplicateNameCheck = await db
+    .collection("team_registrations")
+    .where("eventId", "==", eventId)
+    .where("teamName", "==", teamName.trim())
+    .limit(1)
+    .get();
+
+  if (!duplicateNameCheck.empty) {
+    res.status(409).json({ error: "A team with this name is already registered." });
+    return;
+  }
+
+  // Check if member1 email is already registered as a lead
+  const emailLower = members[0].email.trim().toLowerCase();
+  const duplicateLeadCheck = await db
+    .collection("team_registrations")
+    .where("eventId", "==", eventId)
+    .where("members", "array-contains", { email: emailLower })
+    .get();
+  // Firestore array-contains with complex objects is tricky, but let's do a basic check by team Lead
+  const duplicateLeadCheck2 = await db
+    .collection("team_registrations")
+    .where("eventId", "==", eventId)
+    .where("leadEmail", "==", emailLower)
+    .limit(1)
+    .get();
+
+  if (!duplicateLeadCheck2.empty) {
+    res.status(409).json({ error: "The Team Lead's email is already registered." });
+    return;
+  }
+
+  const id = uuidv4();
+
+  const membersWithTokens = [];
+
+  for (let i = 0; i < members.length; i++) {
+    const m = members[i];
+    const verificationToken = generateToken();
+    let qrDataUrl = "";
+    try {
+      qrDataUrl = await generateQrDataUrl({
+        registrationId: id,
+        eventId,
+        verificationToken,
+        isTeam: true,
+        memberIndex: i
+      } as any);
+    } catch (err: any) {
+      console.error("[registerTeam] QR generation failed for member", i, ":", err.message);
+      res.status(500).json({ error: "Failed to generate team tickets." });
+      return;
+    }
+    membersWithTokens.push({
+      name: m.name.trim(),
+      email: m.email.trim().toLowerCase(),
+      rollNumber: m.rollNumber.trim(),
+      year: m.year,
+      branch: m.branch,
+      phone: m.phone.trim(),
+      verificationToken,
+      qrDataUrl,
+      checkedIn: false,
+      checkedInAt: null,
+    });
+  }
+
+  const registration = {
+    eventId,
+    eventName,
+    eventDate,
+    eventVenue,
+    teamName: teamName.trim(),
+    leadEmail: emailLower,
+    members: membersWithTokens,
+    pptLink,
+    emailStatus: "pending",
+    createdAt: new Date().toISOString(),
+    isTeam: true
+  };
+
+  await db.collection("team_registrations").doc(id).set(registration);
+
+  // Save to Google Sheets
+  import("../services/sheets.js").then(({ appendTeamRegistrationRow }) => {
+      appendTeamRegistrationRow({
+        teamName: registration.teamName,
+        members: registration.members,
+        pptLink: registration.pptLink
+      }).catch(console.error);
+  });
+
+  // Send team email
+  import("../services/email.js").then(({ sendTeamTicketEmail }) => {
+      sendTeamTicketEmail({
+        teamName: registration.teamName,
+        members: registration.members,
+        eventName: registration.eventName,
+        eventDate: registration.eventDate,
+        eventVenue: registration.eventVenue,
+        registrationId: id,
+        eventId: registration.eventId
+      }).then(({ success }) => {
+        const status = success ? "sent" : "failed";
+        db.collection("team_registrations").doc(id).set({ emailStatus: status }, { merge: true }).catch(console.error);
+      });
+  });
+
+  res.status(201).json({
+    id,
+    teamName: registration.teamName,
+    message: "Team successfully registered"
+  });
+});
+
 export default router;
