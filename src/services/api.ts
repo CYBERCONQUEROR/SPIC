@@ -121,10 +121,16 @@ export const api = {
     });
   },
 
-  contact(payload: { name: string; email: string; concern: string }) {
-    return request<{ message: string }>("/contact", {
+  registerPPT(formData: FormData) {
+    return fetch(`${BASE}/upload/ppt`, {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: formData,
+      // Note: Don't set Content-Type header when sending FormData, 
+      // the browser will set it automatically with the boundary.
+    }).then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Upload failed");
+      return data as { url: string };
     });
   },
 };

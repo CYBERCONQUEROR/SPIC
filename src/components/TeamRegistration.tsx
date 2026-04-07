@@ -114,22 +114,13 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
     }, 500);
 
     try {
-      const res = await fetch("/api/upload/ppt", {
-        method: "POST",
-        body: formData,
-      });
+      const data = await api.registerPPT(formData);
 
       clearInterval(progressInterval);
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Upload failed: ${res.status}`);
-      }
-
-      const data = await res.json();
       setUploadProgress(100);
-      return data.url as string;
-    } catch (err) {
+      return data.url;
+    } catch (err: any) {
       clearInterval(progressInterval);
       setUploadProgress(0);
       throw err;
