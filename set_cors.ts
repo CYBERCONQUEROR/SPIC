@@ -6,11 +6,15 @@ import "dotenv/config";
 async function run() {
   const serviceAccount = getServiceAccount();
   const app = initializeApp({
-    credential: cert(serviceAccount),
-    storageBucket: "spic-19d60.firebasestorage.app"
+    credential: cert(serviceAccount)
   });
 
-  const bucket = getStorage(app).bucket();
+  const [buckets] = await getStorage(app).getBuckets();
+  console.log("Available buckets:", buckets.map(b => b.name));
+
+  const bucketName = buckets[0]?.name || "spic-19d60.appspot.com";
+  const bucket = getStorage(app).bucket(bucketName);
+  
   const corsConfiguration = [
     {
       origin: ["*"],
@@ -20,7 +24,7 @@ async function run() {
     }
   ];
 
-  console.log("Setting CORS for spic-19d60.firebasestorage.app...");
+  console.log(`Setting CORS for ${bucketName}...`);
   try {
     await bucket.setCorsConfiguration(corsConfiguration);
     console.log("CORS configured successfully!");

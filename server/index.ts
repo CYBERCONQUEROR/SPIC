@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import registrationRouter from "./routes/registration.js";
 import verificationRouter from "./routes/verification.js";
 import contactRouter from "./routes/contact.js";
+import uploadRouter from "./routes/upload.js";
 
 // Render sets the PORT env var for web services
 const PORT = Number(process.env.PORT || process.env.API_PORT || 3001);
@@ -17,16 +18,22 @@ const app = express();
 
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "110mb" }));
 
 // ─── API routes ──────────────────────────────────────────────────────
 app.use("/api/registrations", registrationRouter);
 app.use("/api/verify", verificationRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/upload", uploadRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// ─── Serve uploaded files ─────────────────────────────────────────────
+const uploadsPath = path.resolve(__dirname, "../uploads");
+app.use("/uploads", express.static(uploadsPath));
 
 // ─── Frontend Static Files (Production) ──────────────────────────────
 // This allows a single Render server to host both the API and the React App

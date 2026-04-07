@@ -15,8 +15,6 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/services/api";
 import { CheckCircle2, Loader2, UploadCloud, File, X, ChevronRight, ChevronLeft } from "lucide-react";
 import type { Event } from "@/data/events";
-import { storage } from "@/lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const YEAR_OPTIONS = ["1st Year", "2nd Year", "3rd Year", "4th Year"] as const;
 const BRANCH_OPTIONS = [
@@ -106,28 +104,36 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
   const uploadFile = async (): Promise<string> => {
     if (!pptFile) throw new Error("PPT / PPTX file is required.");
     
-    // Generate unique name
-    const ext = pptFile.name.split('.').pop();
-    const fileName = `ideation/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-    const storageRef = ref(storage, fileName);
+    setUploadProgress(10);
+    const formData = new FormData();
+    formData.append("file", pptFile);
 
-    return new Promise((resolve, reject) => {
-      const uploadTask = uploadBytesResumable(storageRef, pptFile);
+    // Simulate progress during upload
+    const progressInterval = setInterval(() => {
+      setUploadProgress(p => (p < 85 ? p + 5 : p));
+    }, 500);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
-        }
-      );
-    });
+    try {
+      const res = await fetch("/api/upload/ppt", {
+        method: "POST",
+        body: formData,
+      });
+
+      clearInterval(progressInterval);
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Upload failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setUploadProgress(100);
+      return data.url as string;
+    } catch (err) {
+      clearInterval(progressInterval);
+      setUploadProgress(0);
+      throw err;
+    }
   };
 
   const onSubmit = async (values: FormValues) => {
