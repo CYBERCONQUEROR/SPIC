@@ -78,7 +78,7 @@ export const teamMembers: TeamMember[] = [
   { id: "tm-18", name: "Ujjwal Vashistha ", role: "Member", department: "Technical Team", image: "/IMG20241031203128~2 - Ujjwal Vashishta.jpg", objectPosition: "center 20%" },
   // { id: "tm-19", name: "Nishka Tyagi", role: "Member", department: "Technical Team" },
   { id: "tm-20", name: "Nayan Yadav", role: "Member", department: "Technical Team", image: "/InShot_20251016_204307334 - Nayan Yadav.jpg" },
-  { id: "tm-21", name: "Navya Swami ", role: "Member", department: "Technical Team" },
+  // { id: "tm-21", name: "Navya Swami ", role: "Member", department: "Technical Team" },
   { id: "tm-22", name: "Omansh Arora", role: "Member", department: "Technical Team", image: "/IMG_20260206_151852 - Omansh Arora.jpg" },
   { id: "tm-23", name: "Pushkar Tiwari", role: "Member", department: "Technical Team", image: "IMG_20251116_012717247 - SORA.jpg" },
   { id: "tm-24", name: "Rajnikant", role: "Member", department: "Technical Team" },
