@@ -26,6 +26,7 @@ export const upcomingEvents: Event[] = [
     registrationUrl: "#",
   },
   {
+    
     id: "tedx-rkgit-2026",
     name: "TEDx RKGIT",
     date: "2026-04-01",
