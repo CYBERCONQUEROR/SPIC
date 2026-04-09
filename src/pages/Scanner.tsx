@@ -92,9 +92,16 @@ export default function Scanner() {
       const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID);
       scannerRef.current = scanner;
 
+      // Dynamic QR box size based on container width
+      const qrboxSize = Math.min(el.clientWidth * 0.7, 300);
+
       await scanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { 
+          fps: 15, 
+          qrbox: { width: qrboxSize, height: qrboxSize },
+          aspectRatio: 1.0
+        },
         (decodedText) => verify(decodedText),
         () => {}
       );
@@ -302,17 +309,36 @@ export default function Scanner() {
 
                     {/* Scanning indicator (only when scanning) */}
                     {!result && !error && scanning && !loading && (
-                      <div className="absolute inset-0 pointer-events-none border-[3px] border-primary/40 rounded-sm">
-                        <div className="absolute top-1/2 left-0 right-0 h-1 bg-primary/70 shadow-[0_0_20px_rgba(59,130,246,0.9)] animate-scan" style={{ animation: 'scan 2.5s ease-in-out infinite' }} />
-                        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5" />
+                      <div className="absolute inset-0 pointer-events-none z-20">
+                        {/* Darkened backdrop with cutout (viewfinder) */}
+                        <div className="absolute inset-0 bg-black/40" style={{ 
+                          clipPath: 'polygon(0% 0%, 0% 100%, 15% 100%, 15% 15%, 85% 15%, 85% 85%, 15% 85%, 15% 100%, 100% 100%, 100% 0%)' 
+                        }} />
+                        
+                        {/* Viewfinder Frame */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] max-w-[300px] max-h-[300px]">
+                          {/* Corner Accents */}
+                          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg" />
+                          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg" />
+                          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-lg" />
+                          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-lg" />
+                          
+                          {/* Animated Scan Line - now restricted to the box */}
+                          <div className="absolute left-2 right-2 h-1 bg-primary/80 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-scan" style={{ top: '15%' }} />
+                          
+                          {/* Inner Hint */}
+                          <div className="absolute inset-0 flex items-end justify-center pb-4">
+                            <p className="text-[10px] font-bold text-white/40 tracking-[0.2em] uppercase">Align QR Code</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
 
                   <style>{`
                     @keyframes scan {
-                      0%, 100% { top: 15%; opacity: 0.5; }
-                      50% { top: 85%; opacity: 1; }
+                      0%, 100% { top: 10%; opacity: 0.3; }
+                      50% { top: 90%; opacity: 1; }
                     }
                   `}</style>
                 </CardContent>
