@@ -205,8 +205,8 @@ router.post("/:id/resend", async (req: Request, res: Response) => {
 router.post("/team", async (req: Request, res: Response) => {
   const { eventId, eventName, eventDate, eventVenue, teamName, members, pptLink } = req.body;
 
-  if (!eventId || !eventName || !teamName || !members || members.length !== 4 || !pptLink) {
-    res.status(400).json({ error: "Missing required fields. Team registrations require 4 members and a PPT link." });
+  if (!eventId || !eventName || !teamName || !members || members.length < 1 || members.length > 4 || !pptLink) {
+    res.status(400).json({ error: "Missing required fields. Team registrations require at least 1 member (Lead) and a PPT link." });
     return;
   }
 

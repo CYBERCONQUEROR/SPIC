@@ -81,7 +81,7 @@ export const teamMembers: TeamMember[] = [
   // { id: "tm-21", name: "Navya Swami ", role: "Member", department: "Technical Team" },
   { id: "tm-22", name: "Omansh Arora", role: "Member", department: "Technical Team", image: "/IMG_20260206_151852 - Omansh Arora.jpg" },
   { id: "tm-23", name: "Pushkar Tiwari", role: "Member", department: "Technical Team", image: "IMG_20251116_012717247 - SORA.jpg" },
-  { id: "tm-24", name: "Rajnikant", role: "Member", department: "Technical Team" },
+  { id: "tm-24", name: "Rajnikant", role: "Member", department: "Technical Team", image: "WhatsApp Image 2026-04-09 at 3.14.33 AM.jpeg" },
   { id: "tm-26", name: "Akriti Singh", role: "Member", department: "Technical Team", image: "/IMG_20260209_200629 - Akriti Singh.jpg" },
   { id: "tm-27", name: "Archita Prajapati", role: "Member", department: "Content & Social Media", image: "WhatsApp Image 2026-03-25 at 6.33.22 PM.jpeg" },
   // { id: "tm-28", name: "Adhiya Jha", role: "Member", department: "Content & Social Media" },

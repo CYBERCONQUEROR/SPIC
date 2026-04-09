@@ -46,7 +46,7 @@ const timelineData: TimelineYear[] = [
     year: 2026,
     yearDisplay: "2026",
     events: [
-      "Ideation 2.0 (Upcoming)",
+      "Ideation'26 (Upcoming)",
       "National Incubation Drive",
     ],
   },

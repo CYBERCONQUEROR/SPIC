@@ -31,19 +31,36 @@ const memberSchema = z.object({
   phone: z.string().regex(/^[0-9]{10}$/, "10-digit phone number required"),
 });
 
-// For partial teams, we'll allow empty members except the leader
-const optionalMemberSchema = memberSchema.partial().extend({
-  // But if any field is filled, all must be filled (handled in refine or naturally)
-  // For now let's just make them fully optional and filter empty ones on submit
+// For optional members, allow empty strings so initialized fields don't block submission
+const optionalMemberSchema = z.object({
+  name: z.string().optional().or(z.literal("")),
+  email: z.string().email("Enter a valid email").optional().or(z.literal("")),
+  rollNumber: z.string().optional().or(z.literal("")),
+  year: z.string().optional().or(z.literal("")),
+  branch: z.string().optional().or(z.literal("")),
+  phone: z.string().regex(/^[0-9]{10}$/, "10-digit phone number required").optional().or(z.literal("")),
+}).superRefine((data, ctx) => {
+    // If ANY field is filled, ALL fields must be filled for an optional member
+    const fields = Object.values(data);
+    const someFilled = fields.some(v => v !== "" && v !== undefined);
+    const allFilled = fields.every(v => v !== "" && v !== undefined);
+    
+    if (someFilled && !allFilled) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please complete all fields for this team member or leave them all empty",
+            path: ["name"] // Point to name as a general indicator
+        });
+    }
 });
 
 const schema = z.object({
   teamName: z.string().min(2, "Team Name must be at least 2 characters"),
   members: z.tuple([
     memberSchema, // Leader is required
-    memberSchema.partial(), // Others are optional
-    memberSchema.partial(),
-    memberSchema.partial(),
+    optionalMemberSchema, // Others are optional
+    optionalMemberSchema,
+    optionalMemberSchema,
   ]),
 }).superRefine((data, ctx) => {
   const emails = new Set<string>();
@@ -97,6 +114,7 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
     handleSubmit,
     control,
     trigger,
+    getValues,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormValues>({ 
@@ -209,6 +227,11 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
     }
   };
 
+  const onFormError = (errs: any) => {
+    console.error("[Form Error]", errs);
+    setError("Please check all member details. Some fields may be missing or invalid.");
+  };
+
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
       setTimeout(() => {
@@ -251,7 +274,7 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
                 Register for {event.name}
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
-                Build your team of 4 and submit your idea.
+                Build your team (up to 4 members) and submit your idea.
             </DialogDescription>
             </DialogHeader>
         )}
@@ -322,7 +345,7 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit, onFormError)} className="space-y-4">
             
             {/* STEP 1: TEAM INFO */}
             {step === "team" && (

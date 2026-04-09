@@ -31,6 +31,11 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// 404 Handler for API routes
+app.use("/api", (req, res) => {
+  res.status(404).json({ error: `API route not found: ${req.method} ${req.originalUrl}` });
+});
+
 // ─── Serve uploaded files ─────────────────────────────────────────────
 const uploadsPath = path.resolve(__dirname, "../uploads");
 app.use("/uploads", express.static(uploadsPath));
@@ -49,20 +54,39 @@ app.use((req, res, next) => {
   }
 });
 
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(`[error] ${req.method} ${req.path}:`, err.message || err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+    path: req.path
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`[server] App (API + Web) running on port ${PORT}`);
 
   // ─── Render Keep-Alive (Heartbeat) ──────────────────────────────────
   // Pings the external URL every 14 mins to prevent free tier from sleeping
-  const EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+  let EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
   if (EXTERNAL_URL) {
+    // Normalize URL (remove trailing slash)
+    if (EXTERNAL_URL.endsWith("/")) EXTERNAL_URL = EXTERNAL_URL.slice(0, -1);
+    
     console.log(`[heartbeat] Initializing keep-alive for ${EXTERNAL_URL}`);
     setInterval(async () => {
       try {
-        console.log(`[heartbeat] Pinging health endpoint...`);
-        const response = await fetch(`${EXTERNAL_URL}/api/health`);
-        const data = await response.json();
-        console.log(`[heartbeat] Status: ${data.status}`);
+        const url = `${EXTERNAL_URL}/api/health`;
+        const response = await fetch(url);
+        const contentType = response.headers.get("content-type");
+        
+        if (contentType && contentType.includes("application/json")) {
+           const data = await response.json();
+           console.log(`[heartbeat] Ping ${url} -> Status: ${data.status}`);
+        } else {
+           const text = await response.text();
+           console.error(`[heartbeat] Ping failed. Expected JSON, got ${contentType}. Body snippet: ${text.slice(0, 100)}`);
+        }
       } catch (error) {
         console.error(`[heartbeat] Ping failed:`, error instanceof Error ? error.message : error);
       }
