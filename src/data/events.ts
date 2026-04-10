@@ -19,10 +19,10 @@ export const upcomingEvents: Event[] = [
     id: "ideation-2",
     name: "Ideation '26",
     date: "25 & 27 April 2026",
-    venue: "Seminal hall , d block",
+    venue: "Seminal Hall , D Block",
     status: "open",
     category: "competition",
-    description: "Inter-college pitch competition where students present innovative ideas to a panel of industry experts and investors.",
+    description: "Intra-college pitch competition where students present innovative ideas to a panel of industry experts and investors.",
     registrationUrl: "#",
   },
   {

@@ -6,8 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { upcomingEvents, pastEvents, type Event } from "@/data/events";
 import { Calendar, MapPin, Users, Mic } from "lucide-react";
-import EventRegistration from "@/components/EventRegistration";
-import TeamRegistration from "@/components/TeamRegistration";
 import EventGallery from "@/components/EventGallery";
 
 type Filter = "all" | "upcoming" | "past";
@@ -20,10 +18,8 @@ const statusColors: Record<string, string> = {
 
 const EventCard = ({
   event,
-  onRegister,
 }: {
   event: Event;
-  onRegister?: (event: Event) => void;
 }) => (
   <Card className="h-full group border border-border/70 glass-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-200">
     <CardContent className="p-5">
@@ -48,13 +44,13 @@ const EventCard = ({
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed mb-4">{event.description}</p>
       {event.status === "open" ? (
-        <Button size="sm" onClick={() => onRegister?.(event)}>
-          Register Now
+        <Button size="sm" asChild>
+          <Link to={`/register/${event.id}`}>Register Now</Link>
         </Button>
       ) : event.status === "ended" ? (
         <EventGallery eventId={event.id} eventName={event.name} imageList={event.imageList} />
       ) : (
-        <div className="inline-flex items-center justify-center rounded-md text-sm font-bold h-9 px-4 py-2 bg-primary/10 text-primary border border-primary/20 shadow-sm">
+        <div className="inline-flex items-center justify-center rounded-md text-sm font-bold h-9 px-4 py-2 bg-primary/10 text-primary border border-primary/20 shadow-sm w-full">
           Coming Soon
         </div>
       )}
@@ -64,7 +60,6 @@ const EventCard = ({
 
 const Events = () => {
   const [filter, setFilter] = useState<Filter>("all");
-  const [registerEvent, setRegisterEvent] = useState<Event | null>(null);
 
   return (
     <main>
@@ -97,7 +92,7 @@ const Events = () => {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {upcomingEvents.map((e, i) => (
                   <AnimatedSection key={e.id} delay={i * 0.06}>
-                    <EventCard event={e} onRegister={setRegisterEvent} />
+                    <EventCard event={e} />
                   </AnimatedSection>
                 ))}
               </div>
@@ -123,26 +118,6 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Registration Dialog */}
-      {registerEvent && (
-        registerEvent.id === "ideation-2" ? (
-          <TeamRegistration
-            event={registerEvent}
-            open={!!registerEvent}
-            onOpenChange={(open) => {
-              if (!open) setRegisterEvent(null);
-            }}
-          />
-        ) : (
-          <EventRegistration
-            event={registerEvent}
-            open={!!registerEvent}
-            onOpenChange={(open) => {
-              if (!open) setRegisterEvent(null);
-            }}
-          />
-        )
-      )}
     </main>
   );
 };

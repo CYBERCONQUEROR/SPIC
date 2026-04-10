@@ -35,7 +35,7 @@ function escapeHtml(str: string): string {
 function buildHtml(data: TicketEmailData): string {
   const rawDate = new Date(data.eventDate);
   const formattedDate = isNaN(rawDate.getTime()) 
-    ? data.eventDate 
+    ? `Saturday, ${data.eventDate}` 
     : rawDate.toLocaleDateString("en-IN", {
         weekday: "long",
         day: "numeric",
@@ -186,7 +186,7 @@ export interface TeamTicketEmailData {
 function buildTeamHtml(data: TeamTicketEmailData, memberIndex: number): string {
   const rawDate = new Date(data.eventDate);
   const formattedDate = isNaN(rawDate.getTime()) 
-    ? data.eventDate 
+    ? `Saturday, ${data.eventDate}` 
     : rawDate.toLocaleDateString("en-IN", {
         weekday: "long",
         day: "numeric",

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import AnimatedSection from "@/components/AnimatedSection";
 import Counter from "@/components/Counter";
+import { upcomingEvents } from "@/data/events";
 
 import { GradientDots } from "@/components/ui/gradient-dots";
 import {
@@ -162,7 +163,7 @@ const Index = () => {
               ))}
             </div>
             <Button asChild size="lg">
-              <Link to="/events">Register Now</Link>
+              <Link to="/register/ideation-2">Register Now</Link>
             </Button>
           </AnimatedSection>
         </div>

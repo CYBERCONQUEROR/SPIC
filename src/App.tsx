@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -17,6 +17,7 @@ import JoinTeam from "./pages/JoinTeam";
 import Scanner from "./pages/Scanner";
 import NotFound from "./pages/NotFound";
 import Gallery from "./pages/Gallery";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/team" element={<Team />} />
               <Route path="/join" element={<JoinTeam />} />
               <Route path="/scan" element={<Scanner />} />
+              <Route path="/register/:eventId" element={<Register />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

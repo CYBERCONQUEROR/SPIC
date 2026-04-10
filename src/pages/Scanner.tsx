@@ -92,15 +92,13 @@ export default function Scanner() {
       const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID);
       scannerRef.current = scanner;
 
-      // Dynamic QR box size based on container width
-      const qrboxSize = Math.min(el.clientWidth * 0.7, 300);
+      const qrboxSize = 250;
 
       await scanner.start(
         { facingMode: "environment" },
         { 
           fps: 15, 
-          qrbox: { width: qrboxSize, height: qrboxSize },
-          aspectRatio: 1.0
+          qrbox: { width: qrboxSize, height: qrboxSize }
         },
         (decodedText) => verify(decodedText),
         () => {}
@@ -309,14 +307,10 @@ export default function Scanner() {
 
                     {/* Scanning indicator (only when scanning) */}
                     {!result && !error && scanning && !loading && (
-                      <div className="absolute inset-0 pointer-events-none z-20">
-                        {/* Darkened backdrop with cutout (viewfinder) */}
-                        <div className="absolute inset-0 bg-black/40" style={{ 
-                          clipPath: 'polygon(0% 0%, 0% 100%, 15% 100%, 15% 15%, 85% 15%, 85% 85%, 15% 85%, 15% 100%, 100% 100%, 100% 0%)' 
-                        }} />
+                      <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden rounded-xl">
                         
                         {/* Viewfinder Frame */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] max-w-[300px] max-h-[300px]">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]">
                           {/* Corner Accents */}
                           <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg" />
                           <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg" />
