@@ -44,7 +44,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <img
-                src="Gemini_Generated_Image_c51bomc51bomc51b-removebg-preview.png"
+                src="/spic-logo.png"
                 alt="SPIC Logo"
                 className="h-8 w-8 rounded-full object-cover border border-border/70 shadow-sm"
               />
