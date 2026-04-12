@@ -23,7 +23,7 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2.5 group">
           <img
-            src="/spic-logo.png"
+            src="/spic-logo.webp"
             alt="SPIC Logo"
             className="h-8 w-8 rounded-full object-cover border border-border/70 shadow-sm transition-transform duration-200 group-hover:scale-105"
           />

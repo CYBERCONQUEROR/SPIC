@@ -7,10 +7,11 @@ interface StatCardProps {
   number: number;
   suffix?: string;
   label: string;
+  sub?: string;
   delay?: number;
 }
 
-function StatCard({ icon: Icon, number, suffix = "+", label, delay = 0 }: StatCardProps) {
+function StatCard({ icon: Icon, number, suffix = "+", label, sub, delay = 0 }: StatCardProps) {
   return (
     <AnimatedSection delay={delay} className="group">
       <div className="relative overflow-hidden rounded-2xl p-8 h-full hover:shadow-2xl transition-all duration-500">
@@ -29,14 +30,21 @@ function StatCard({ icon: Icon, number, suffix = "+", label, delay = 0 }: StatCa
 
           {/* Counter */}
           <div className="flex items-baseline justify-center gap-1">
-            <Counter to={number} duration={2} className="text-4xl sm:text-5xl font-bold text-gradient" />
-            <span className="text-2xl font-bold text-primary">{suffix}</span>
+            <Counter 
+              end={number} 
+              suffix={suffix} 
+              className="text-4xl sm:text-5xl font-bold text-primary" 
+            />
           </div>
 
-          {/* Label */}
-          <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-500 font-medium">
+          <p className="text-sm text-foreground/90 font-semibold">
             {label}
           </p>
+          {sub && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {sub}
+            </p>
+          )}
         </div>
 
         {/* Animated bottom line */}
@@ -52,6 +60,7 @@ interface ImpactSectionProps {
     number: number;
     suffix?: string;
     label: string;
+    sub?: string;
   }>;
   title?: string;
   subtitle?: string;
@@ -76,6 +85,7 @@ export default function ImpactSection({ stats, title = "Our Impact", subtitle = 
               number={stat.number}
               suffix={stat.suffix}
               label={stat.label}
+              sub={stat.sub}
               delay={idx * 0.1}
             />
           ))}

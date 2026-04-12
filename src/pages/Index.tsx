@@ -67,7 +67,7 @@ const featureCards = [
 const stats = [
   { label: "Students Impacted", value: 500, suffix: "+", sub: "From EII & across RKGIT" },
   { label: "Events Organized", value: 25, suffix: "+", sub: "Hackathons, talks & summits" },
-  { label: "Startup Ideas Incubated", value: 10, suffix: "+", sub: "Early-stage concepts nurtured" },
+  { label: "Startup Ideas Incubated", value: 7, suffix: "+", sub: "Early-stage concepts nurtured" },
   { label: "Industry Collaborations", value: 5, suffix: "+", sub: "MoUs, mentors & partners" },
 ];
 

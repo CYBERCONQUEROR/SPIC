@@ -25,53 +25,53 @@ async function getAllFiles(dirPath, arrayOfFiles) {
 async function optimize() {
   console.log('--- Starting Image Optimization ---');
   const files = await getAllFiles(publicDir);
-  console.log(`Found ${files.length} images to optimize.`);
+  console.log(`Found ${files.length} images to process.`);
 
   let totalSaved = 0;
+  let count = 0;
 
   for (const filePath of files) {
     try {
+      if (filePath.includes('.webp') || filePath.includes('.svg')) continue;
+
       const stats = fs.statSync(filePath);
       const originalSize = stats.size;
       
-      // Don't process if already small (e.g. < 100KB) unless it's huge in dimensions
-      if (originalSize < 100 * 1024) {
-        // console.log(`Skipping ${path.basename(filePath)} (already small: ${(originalSize / 1024).toFixed(2)} KB)`);
-        // continue;
-      }
-
-      const ext = path.extname(filePath).toLowerCase();
       const isEvent = filePath.includes('events');
-      const maxWidth = isEvent ? 1920 : 800;
+      const isTeamMember = !isEvent && (path.basename(filePath).match(/(jpeg|jpg|png|webp)$/i) && fs.statSync(filePath).size > 0);
       
-      const tempPath = filePath + '.tmp';
-      
-      let pipeline = sharp(filePath)
-        .rotate() // Automatically rotate based on EXIF
-        .resize({ width: maxWidth, withoutEnlargement: true });
+      // Heuristic: if it's in public root and looks like a profile pic, it's probably team
+      const isTeam = !isEvent && filePath.includes('public') && path.dirname(filePath) === publicDir;
 
-      if (ext === '.jpg' || ext === '.jpeg') {
-        pipeline = pipeline.jpeg({ quality: 85, mozjpeg: true });
-      } else if (ext === '.png') {
-        pipeline = pipeline.png({ quality: 85, palette: true });
-      }
+      let maxWidth = 1200;
+      if (isEvent) maxWidth = 1600;
+      if (isTeam) maxWidth = 600;
 
-      await pipeline.toFile(tempPath);
+      const webpPath = filePath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
       
-      const newStats = fs.statSync(tempPath);
+      await sharp(filePath)
+        .rotate()
+        .resize({ width: maxWidth, withoutEnlargement: true })
+        .webp({ quality: 80, effort: 6 })
+        .toFile(webpPath);
+      
+      const newStats = fs.statSync(webpPath);
       const newSize = newStats.size;
 
+      // Delete original
       fs.unlinkSync(filePath);
-      fs.renameSync(tempPath, filePath);
+      
       const saved = originalSize - newSize;
       if (saved > 0) totalSaved += saved;
-      console.log(`Processed ${path.basename(filePath)}: ${(originalSize / 1024).toFixed(2)} KB -> ${(newSize / 1024).toFixed(2)} KB`);
+      count++;
+      console.log(`Optimized ${path.basename(filePath)} -> ${path.basename(webpPath)}: ${(originalSize / 1024).toFixed(2)} KB -> ${(newSize / 1024).toFixed(2)} KB`);
     } catch (err) {
       console.error(`Error optimizing ${filePath}:`, err.message);
     }
   }
 
   console.log('--- Optimization Complete ---');
+  console.log(`Processed ${count} images.`);
   console.log(`Total storage saved: ${(totalSaved / 1024 / 1024).toFixed(2)} MB`);
 }
 

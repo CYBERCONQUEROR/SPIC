@@ -1,26 +1,15 @@
 import AnimatedSection from "@/components/AnimatedSection";
-import Counter from "@/components/Counter";
-import HeroSection from "@/components/HeroSection";
 import WhoWeAreSection from "@/components/WhoWeAreSection";
 import ValueCard from "@/components/ValueCard";
-import { InteractiveTimeline } from "@/components/InteractiveTimeline";
 import ImpactSection from "@/components/ImpactSection";
-import { timelineData } from "@/data/timeline";
 import { BookOpen, Target, Eye, Users, Zap, Trophy } from "lucide-react";
 
 const impactStats = [
-  { icon: Users, number: 500, suffix: "+", label: "Students Impacted" },
-  { icon: Trophy, number: 20, suffix: "+", label: "Events Organized" },
-  { icon: BookOpen, number: 10, suffix: "+", label: "Workshops Conducted" },
-  { icon: Zap, number: 5, suffix: "+", label: "Industry Collaborations" },
+  { icon: Users, number: 500, suffix: "+", label: "Students Impacted", sub: "From EII & across RKGIT" },
+  { icon: Trophy, number: 20, suffix: "+", label: "Events Organized", sub: "Hackathons, talks & summits" },
+  { icon: BookOpen, number: 10, suffix: "+", label: "Workshops Conducted", sub: "Skill-building sessions" },
+  { icon: Zap, number: 5, suffix: "+", label: "Industry Collaborations", sub: "MoUs, mentors & partners" },
 ];
-
-const timelineItems = timelineData.map(item => ({
-  year: item.year,
-  title: item.events[0] || "SPIC Milestone",
-  description: item.events.join(" • "),
-  imageUrl: `/about/journey/${item.year}.jpg`,
-}));
 
 const About = () => {
   return (
@@ -32,7 +21,7 @@ const About = () => {
         mainText="The Society of Promotion of Innovation and Creativity (SPIC) is a student-run society at RKGIT, dedicated to fostering a culture of innovation, entrepreneurship, and creativity among students. Our mission is to provide a platform for students to learn, build, and grow."
         quote="We believe in the power of ideas and aim to create an environment where students can turn their ideas into reality."
         visionText="Our vision is to create a vibrant community of innovators and entrepreneurs who are not afraid to take risks and challenge the status quo. We organize a variety of events and activities throughout the year, including hackathons, workshops, innovation fairs, and guest lectures by industry experts."
-        imageUrl="/about/spic-community.jpg"
+        imageUrl="/about/spic-community.webp"
       />
 
       {/* Mission & Vision Section */}
@@ -62,18 +51,10 @@ const About = () => {
         </div>
       </section>
 
-      {/* Impact Section */}
       <ImpactSection
         stats={impactStats}
         title="Our Impact"
         subtitle="Metrics That Matter"
-      />
-
-      {/* Timeline Section */}
-      <InteractiveTimeline
-        items={timelineItems}
-        title="Our Journey"
-        subtitle="Milestones & Growth"
       />
     </main>
   );
