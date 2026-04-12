@@ -70,12 +70,22 @@ const Footer = () => {
               >
                 <Instagram className="h-4 w-4" />
               </a>
-              <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground cursor-not-allowed transition-all duration-200">
+              <a
+                href="https://www.linkedin.com/in/spic-eii-695892402/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
+              >
                 <Linkedin className="h-4 w-4" />
-              </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground cursor-not-allowed transition-all duration-200">
+              </a>
+              <a
+                href="https://www.youtube.com/@spicrkgit?app=desktop"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
+              >
                 <Youtube className="h-4 w-4" />
-              </div>
+              </a>
 
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
