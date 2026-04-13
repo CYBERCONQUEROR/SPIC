@@ -335,9 +335,28 @@ export default function TeamRegistration({ event, open, onOpenChange }: Props) {
               Present this single QR code for your entire team's entry.
             </p>
 
-            <div className="flex justify-center">
+            <div className="mt-4 p-5 rounded-2xl bg-[#25D366]/5 border border-[#25D366]/20 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 text-left">
+              <p className="text-[10px] font-bold text-[#25D366] mb-1.5 uppercase tracking-wider">
+                Stay Updated
+              </p>
+              <h4 className="text-sm font-semibold mb-1.5 text-foreground">Join the Team Leaders Group</h4>
+              <p className="text-[11px] text-muted-foreground mb-4">
+                Join the official WhatsApp group for all registered teams to get real-time support and event day updates.
+              </p>
+              <Button 
+                asChild
+                className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white border-none shadow-lg shadow-[#25D366]/20 font-bold h-9 text-xs"
+              >
+                <a href="https://chat.whatsapp.com/LSMLeVejLRhALy4ohrSiF2?mode=gi_t" target="_blank" rel="noopener noreferrer">
+                  Join WhatsApp Group
+                </a>
+              </Button>
+            </div>
+
+            <div className="flex justify-center mt-6">
               <Button
-                className="w-full sm:w-auto min-w-[150px]"
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground text-sm"
                 onClick={() => handleClose(false)}
               >
                 Done

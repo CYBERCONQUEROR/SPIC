@@ -36,6 +36,9 @@ export const coreLeadership: TeamMember[] = [
 
 export const departmentHeads: TeamMember[] = [
   { id: "dh-1", name: "Puneet Chaudhary", role: "Head", department: "FundIncharge", linkedinUrl: "#", image: "/IMG_2904 - puneet chaudhary.webp" },
+  { id: "dh-14", name: "Parth Mehra", role: "Head", department: "Management", linkedinUrl: "#", image: "/IMG-20260207-WA0005 - parth Mehra.webp" },
+  { id: "dh-15", name: "Utkarsh Tyagi", role: "Co-Head", department: "Management", linkedinUrl: "#", image: "/IMG_20250226_234449_530 - Utkarsh Tyagi.webp" },
+
   { id: "dh-2", name: "Pranjal Dubey", role: "Head", department: "PublicRelations", linkedinUrl: "#", image: "/IMG_20250405_155938248_HDR_AE - Pranjal Dubey.webp" },
   { id: "dh-3", name: "Prateek Dixit", role: "Co-Head", department: "PublicRelations", linkedinUrl: "#", image: "/retouch_2025091801391880 - Prateek Dixit.webp" },
   { id: "dh-4", name: "Daksh Chaudhary", role: "Head", department: "Designing", linkedinUrl: "#", image: "/Daksh Chaudhary - Daksh Choudhary.webp" },
@@ -49,8 +52,6 @@ export const departmentHeads: TeamMember[] = [
   { id: "dh-11", name: "Ujjwal Goel", role: "Co-Head", department: "Documentation", linkedinUrl: "#", image: "/Ujjwal goel.webp" },
   { id: "dh-12", name: "Saloni Singh", role: "Head", department: "Club Out Reach", linkedinUrl: "#", image: "/B77C1F81-89BF-4D53-9C76-4440F2DB60A7 - Saloni Singh.webp", objectPosition: "center 20%" },
   { id: "dh-13", name: "Nilisha Garg", role: "Co-Head", department: "Club Out Reach", linkedinUrl: "#", image: "/IMG_20260209_200539 - Nilisha Garg.webp" },
-  { id: "dh-14", name: "Parth Mehra", role: "Head", department: "Management", linkedinUrl: "#", image: "/IMG-20260207-WA0005 - parth Mehra.webp" },
-  { id: "dh-15", name: "Utkarsh Tyagi", role: "Co-Head", department: "Management", linkedinUrl: "#", image: "/IMG_20250226_234449_530 - Utkarsh Tyagi.webp" },
 
 ];
 
