@@ -74,7 +74,7 @@ export const teamMembers: TeamMember[] = [
   { id: "tm-13", name: "Anushka Chikara", role: "Member", department: "Technical Team", image: "/InShot_20260210_110116514 - Anushka Chikara.webp" },
   { id: "tm-14", name: "Shamiksha Chaudhary", role: "Member", department: "Technical Team", image: "/IMG_1721 - Samiksha Choudhary.webp", objectPosition: "center 20%" },
   { id: "tm-15", name: "Priyanshu Sharma", role: "Member", department: "Technical Team", image: "/IMG_7282 - Priyanshu.webp", objectPosition: "center 20%" },
-  { id: "tm-16", name: "Prince Madhesiya", role: "Member", department: "Technical Team", image:"WhatsApp Image 2026-04-12 at 1.38.47 AM.webp"},
+  { id: "tm-16", name: "Prince Madhesiya", role: "Member", department: "Technical Team", image: "WhatsApp Image 2026-04-12 at 1.38.47 AM.webp" },
   // { id: "tm-17", name: "Manvi", role: "Member", department: "Technical Team" },
   { id: "tm-18", name: "Ujjwal Vashistha ", role: "Member", department: "Technical Team", image: "/IMG20241031203128~2 - Ujjwal Vashishta.webp", objectPosition: "center 20%" },
   // { id: "tm-19", name: "Nishka Tyagi", role: "Member", department: "Technical Team" },
@@ -100,6 +100,6 @@ export const teamMembers: TeamMember[] = [
   { id: "tm-42", name: "Nikunj Upadhyay", role: "Member", department: "Content & Social Media", image: "/20260204194806580 - Nikunj Upadhayay.webp" },
   { id: "tm-43", name: "Adiya", role: "Member", department: "Content & Social Media", image: "WhatsApp Image 2026-03-25 at 6.33.39 PM.webp" },
   // { id: "tm-44", name: "Avika Singh", role: "Member", department: "Content & Social Media" },
-  { id: "tm-45", name: "Apoorva Singh ", role: "Member", department: "Content & Social Media", image: "/IMG_20251014_211421~2 - Apoorva Singhal.webp" },
+  { id: "tm-45", name: "Apoorva Singhal ", role: "Member", department: "Content & Social Media", image: "/IMG_20251014_211421~2 - Apoorva Singhal.webp" },
 
 ];
