@@ -30,7 +30,7 @@ export const coreLeadership: TeamMember[] = [
   { id: "cl-9", name: "Prakhar Srivastava", role: "Executive", linkedinUrl: "#", image: "/PXL_20251231_192407161 - Prakhar Srivastava.webp" },
   { id: "cl-10", name: "Shikhar Sachan ", role: "Executive", linkedinUrl: "#", image: "WhatsApp Image 2026-03-25 at 8.06.57 PM.webp" },
   { id: "cl-11", name: "Shiva Adhikari ", role: "Executive", linkedinUrl: "#", image: "WhatsApp Image 2026-03-25 at 8.50.58 PM.webp" },
-  { id: "cl-12", name: "Keshav Kumar", role: "General Secretary", linkedinUrl: "#", image: "IMG_1322 - Keshav Kumar.webp", objectPosition: "center 20%" },
+  { id: "cl-12", name: "Keshav Kumar", role: "General Secretary", linkedinUrl: "#", image: "WhatsApp Image 2026-04-14 at 11.18.39 PM.webp", objectPosition: "center 20%" },
   { id: "cl-13", name: "Krishnav Talukdar", role: "Deputy Secretary", linkedinUrl: "#", image: "/DS.webp" },
 ];
 
