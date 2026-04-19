@@ -24,7 +24,7 @@ export const coreLeadership: TeamMember[] = [
   { id: "cl-3", name: "Mayank Tyagi", role: "Treasurer", linkedinUrl: "#", image: "/Mayank tyagi.webp" },
   { id: "cl-4", name: "Traymbakesh Mishra", role: "PRO", linkedinUrl: "#", image: "/Traymbakesh Mishra.webp" },
   { id: "cl-5", name: "Aman Sharma", role: "PRO", linkedinUrl: "#", image: "/Aman.webp" },
-  { id: "cl-6", name: "Aditya Bhuguna", role: "Assistant Vice President", linkedinUrl: "#", objectPosition: "center 20%", image: "/Aditya.webp" },
+  { id: "cl-6", name: "Aditya Bhaguna", role: "Assistant Vice President", linkedinUrl: "#", objectPosition: "center 20%", image: "/Aditya.webp" },
   { id: "cl-7", name: "Ankita Pal", role: "Assistant Vice President", linkedinUrl: "#", image: "WhatsApp Image 2026-03-18 at 4.17.34 PM.webp" },
   { id: "cl-8", name: "Archana Chaurshiya", role: "Assistant Vice President", linkedinUrl: "#", image: "/Archana.webp" },
   { id: "cl-9", name: "Prakhar Srivastava", role: "Executive", linkedinUrl: "#", image: "/PXL_20251231_192407161 - Prakhar Srivastava.webp" },
